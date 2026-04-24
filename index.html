@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lalafo — Інструмент фідбеку з інтерв'ю</title>
+<style>
+:root {
+  --green: #4CAF50;
+  --green-dark: #2E7D32;
+  --green-light: #E8F5E9;
+  --red: #D32F2F;
+  --yellow: #F9A825;
+  --gray: #757575;
+  --light-gray: #F5F5F5;
+  --border: #E0E0E0;
+  --text: #212121;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  color: var(--text);
+  background: #FAFAFA;
+  line-height: 1.5;
+}
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--green);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+h1 { font-size: 22px; color: var(--green-dark); font-weight: 700; }
+h1 .sub { font-weight: normal; font-size: 14px; color: var(--gray); margin-left: 8px; }
+nav { display: flex; gap: 4px; margin-bottom: 20px; flex-wrap: wrap; }
+nav button {
+  padding: 10px 16px;
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+nav button:hover { background: var(--light-gray); }
+nav button.active {
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+main {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  min-height: 400px;
+}
+h2 { font-size: 20px; margin-bottom: 16px; color: var(--text); }
+h3 { font-size: 16px; margin: 22px 0 12px; color: var(--green-dark); }
+h4 { font-size: 14px; margin: 14px 0 8px; font-weight: 600; }
+.section {
+  background: var(--light-gray);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.criterion {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.criterion-title { font-weight: 600; margin-bottom: 4px; font-size: 15px; }
+.criterion-desc { font-size: 13px; color: var(--gray); margin-bottom: 10px; }
+.rating-group { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.rating-group label {
+  flex: 1;
+  min-width: 110px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 13px;
+  background: white;
+  user-select: none;
+  transition: all 0.15s;
+}
+.rating-group label:hover { background: var(--light-gray); }
+.rating-group input[type="radio"] { display: none; }
+.rating-group label.selected.below { background: #FFEBEE; border-color: var(--red); color: var(--red); font-weight: 600; }
+.rating-group label.selected.meets { background: #E8F5E9; border-color: var(--green); color: var(--green-dark); font-weight: 600; }
+.rating-group label.selected.exceeds { background: #E3F2FD; border-color: #1976D2; color: #1565C0; font-weight: 600; }
+.rating-group label.selected.strong-no { background: #FFCDD2; border-color: var(--red); color: var(--red); font-weight: 600; }
+.rating-group label.selected.no { background: #FFE0B2; border-color: #F57C00; color: #E65100; font-weight: 600; }
+.rating-group label.selected.yes { background: #C8E6C9; border-color: var(--green); color: var(--green-dark); font-weight: 600; }
+.rating-group label.selected.strong-yes { background: #A5D6A7; border-color: var(--green-dark); color: var(--green-dark); font-weight: 600; }
+.rating-group label.selected.low { background: #FFEBEE; border-color: var(--red); color: var(--red); font-weight: 600; }
+.rating-group label.selected.medium { background: #FFF8E1; border-color: var(--yellow); color: #E65100; font-weight: 600; }
+.rating-group label.selected.high { background: #E8F5E9; border-color: var(--green); color: var(--green-dark); font-weight: 600; }
+.rubric {
+  font-size: 12px;
+  color: var(--gray);
+  padding: 10px;
+  background: #FAFAFA;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  border-left: 3px solid var(--border);
+}
+.rubric-item { margin-bottom: 4px; line-height: 1.5; }
+.rubric-item b { color: var(--text); }
+textarea, input[type="text"], input[type="date"], input[type="email"], select {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  background: white;
+}
+textarea:focus, input:focus, select:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px rgba(76,175,80,0.15);
+}
+textarea { resize: vertical; min-height: 60px; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: var(--text); }
+.field .required { color: var(--red); }
+.row { display: flex; gap: 12px; flex-wrap: wrap; }
+.row > * { flex: 1; min-width: 200px; }
+button.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--green);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+button.btn:hover { background: var(--green-dark); }
+button.btn.secondary { background: white; color: var(--text); border: 1px solid var(--border); }
+button.btn.secondary:hover { background: var(--light-gray); }
+button.btn.danger { background: var(--red); }
+button.btn.danger:hover { background: #B71C1C; }
+button.btn.small { padding: 6px 12px; font-size: 13px; }
+.actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.red-flag {
+  background: #FFEBEE;
+  border: 1px solid #FFCDD2;
+  color: var(--red);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin: 6px 0;
+}
+.info {
+  background: #E3F2FD;
+  border: 1px solid #BBDEFB;
+  color: #0D47A1;
+  padding: 12px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.warning {
+  background: #FFF8E1;
+  border: 1px solid #FFE082;
+  color: #E65100;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin: 8px 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: white;
+}
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+th { background: var(--light-gray); font-weight: 600; font-size: 12px; text-transform: uppercase; color: var(--gray); letter-spacing: 0.3px; }
+.tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.tag.strong-yes { background: #A5D6A7; color: #1B5E20; }
+.tag.yes { background: #C8E6C9; color: var(--green-dark); }
+.tag.no { background: #FFE0B2; color: #E65100; }
+.tag.strong-no { background: #FFCDD2; color: var(--red); }
+.tag.below { background: #FFEBEE; color: var(--red); }
+.tag.meets { background: #E8F5E9; color: var(--green-dark); }
+.tag.exceeds { background: #E3F2FD; color: #1565C0; }
+.tag.low { background: #FFEBEE; color: var(--red); }
+.tag.medium { background: #FFF8E1; color: #E65100; }
+.tag.high { background: #E8F5E9; color: var(--green-dark); }
+.tag.neutral { background: var(--light-gray); color: var(--gray); }
+.empty {
+  padding: 40px;
+  text-align: center;
+  color: var(--gray);
+}
+.question-item {
+  background: white;
+  border-left: 3px solid var(--green);
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  border-radius: 0 4px 4px 0;
+}
+.checkbox-item { display: flex; gap: 8px; align-items: start; margin-bottom: 8px; font-size: 14px; cursor: pointer; }
+.checkbox-item input { margin-top: 3px; flex-shrink: 0; }
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.15s;
+}
+.card.clickable { cursor: pointer; }
+.card.clickable:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-color: var(--green); }
+.card-title { font-weight: 600; margin-bottom: 4px; font-size: 15px; }
+.card-meta { font-size: 12px; color: var(--gray); }
+details summary {
+  cursor: pointer;
+  padding: 12px 14px;
+  background: var(--light-gray);
+  border-radius: 6px;
+  font-size: 14px;
+  user-select: none;
+}
+details[open] summary { border-radius: 6px 6px 0 0; }
+.details-body {
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  background: white;
+}
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.footer { font-size: 12px; color: var(--gray); text-align: center; padding: 20px 0 8px; }
+.dim { color: var(--gray); }
+.small { font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Lalafo — Interview Feedback<span class="sub">структурований фідбек для команди</span></h1>
+  </header>
+  <nav>
+    <button data-view="feedback">📝 Новий фідбек</button>
+    <button data-view="candidates">👥 Кандидати</button>
+    <button data-view="compare">⚖️ Порівняння</button>
+    <button data-view="roles">⚙️ Ролі</button>
+    <button data-view="data">💾 Дані</button>
+  </nav>
+  <main id="view"></main>
+  <div class="footer">v1.0 · Дані зберігаються локально у браузері. Для бекапу — експорт JSON у вкладці «Дані».</div>
+</div>
+
+<script>
+// ============================================================
+// CONSTANTS
+// ============================================================
+const PRINCIPLES = [
+  {
+    id: 'value',
+    name: 'Bringing value to people',
+    desc: 'Орієнтація на клієнта: розуміння потреб, емоцій, причин поведінки; максимізація цінності, яку клієнт отримує від сервісу.'
+  },
+  {
+    id: 'ownership',
+    name: 'I create as for myself (put yourself in my shoes)',
+    desc: 'Ownership і фокус на результат: бере ініціативу, не чекає і не перекладає провину. Прямий фідбек, визнає помилки, пробує знову і знову.'
+  },
+  {
+    id: 'logic',
+    name: 'I use logic and data',
+    desc: 'Відкрите дослідження «as a beginner», редукція невизначеності через експерименти, об\'єктивні рішення на основі логіки і даних.'
+  }
+];
+
+// ============================================================
+// PRE-CONFIGURED ROLE: UI/UX Designer (AI-First Process Builder)
+// ============================================================
+const DEFAULT_ROLE = {
+  id: 'uiux-ai-first',
+  name: 'UI/UX Designer (AI-First Process Builder)',
+  level: 'Senior',
+  description: 'Не класичний дизайнер, а людина з AI-first мисленням. Має будувати і масштабувати дизайн-процес, керований AI-агентами. Key focus: максимальна автоматизація, мінімізація ручної роботи.',
+  languages: 'Англійська B1+, Українська — носій',
+  sections: [
+    {
+      id: 'hard',
+      name: 'Hard skills (професійні вимоги)',
+      useRubric: true,
+      criteria: [
+        {
+          id: 'uiux-fundamentals',
+          name: 'UI/UX фундаментальні знання',
+          desc: '3+ роки досвіду в UI/UX або Product Design. Сильне розуміння design systems, UX principles, interaction design.',
+          rubric: {
+            below: 'Поверхневе розуміння фундаментів. Менше 3 років досвіду або не володіє design systems.',
+            meets: '3+ роки досвіду. Впевнено володіє design systems, UX principles, interaction design.',
+            exceeds: 'Будував або масштабував design systems. Експертний рівень interaction design, може навчати інших.'
+          }
+        },
+        {
+          id: 'design-process',
+          name: 'Побудова дизайн-процесів (не лише створення дизайну)',
+          desc: 'Здатність мислити системами, а не лише екранами. Досвід структурування процесів, а не виконання задач "за брифом".',
+          rubric: {
+            below: 'Виконував задачі "за брифом". Не структурував процеси. Мислить screens, не systems.',
+            meets: 'Структурував власний процес. Може чітко описати кроки і оптимізації своєї роботи.',
+            exceeds: 'Будував процеси для команди. Має метрики "до/після". Масштабував підхід.'
+          }
+        },
+        {
+          id: 'ai-tools',
+          name: 'Hands-on AI інструменти (GPT, Claude, Cursor) — MUST HAVE',
+          desc: 'Hands-on використання AI-інструментів у щоденній роботі. Не "пробував" — а щодня в реальних задачах.',
+          rubric: {
+            below: '🚩 Red flag: "читав / бачив / пробував". Немає щоденної практики.',
+            meets: 'Використовує AI щодня. Має налаштовані промпти, власні підходи, показує кейси.',
+            exceeds: 'Побудував власну систему промптів / агентів. Конкретні цифри впливу (час, % автоматизації).'
+          }
+        },
+        {
+          id: 'ai-workflows',
+          name: 'AI agent workflows / автоматизація — MUST HAVE',
+          desc: 'Досвід побудови workflow з AI-агентами. Трансформація ручних дизайн-задач в автоматизовані пайплайни.',
+          rubric: {
+            below: '🚩 Red flag: немає конкретних кейсів автоматизації. Ідеї без імплементації.',
+            meets: 'Побудував workflow з агентами. Описує реальні кейси з результатом (що саме, як, який вплив).',
+            exceeds: 'Трансформував ручні задачі в end-to-end пайплайни. Вимірний вплив: % автоматизації, скорочення часу до рішення.'
+          }
+        },
+        {
+          id: 'frontend',
+          name: 'Базовий front-end (HTML/CSS/JS) — MUST HAVE',
+          desc: 'Базове розуміння фронтенду для роботи з інженерами та швидкого прототипування.',
+          rubric: {
+            below: 'Не розуміє фронтенд-код. Не працював з ним.',
+            meets: 'Читає і розуміє базовий код. Може збирати прості прототипи (особливо з AI-помічниками).',
+            exceeds: 'Пише production-ready компоненти. Добре володіє HTML/CSS/JS або фреймворками.'
+          }
+        },
+        {
+          id: 'languages',
+          name: 'Мови (English B1+, Ukrainian native)',
+          desc: 'Перевіряється через комунікацію під час інтерв\'ю. Англійська — для роботи з AI-інструментами та документацією.',
+          rubric: {
+            below: 'Рівень англійської нижче B1 або слабка українська.',
+            meets: 'Англійська B1+ (впевнено читає і говорить). Українська вільна.',
+            exceeds: 'Англійська B2+/C1. Комфортно веде складні технічні дискусії та пише документацію.'
+          }
+        }
+      ]
+    },
+    {
+      id: 'ai-first',
+      name: 'AI-First мислення (патерни "нашої людини")',
+      useRubric: false,
+      criteria: [
+        { id: 'daily-ai', name: 'Daily AI use', desc: 'Використовує AI щодня: "я кидаю в AI / агентів і отримую майже готовий результат, потім валідую".' },
+        { id: 'own-system', name: 'Own tuned processes / prompts', desc: 'Не просто користується — вибудував власну систему промптів / процесів під себе.' },
+        { id: 'speed-thinking', name: 'Optimization & speed thinking', desc: 'Бачить, де процес займає тижні / місяці, і пропонує як скоротити до днів / годин.' },
+        { id: 'automated-mindset', name: 'Already automated mindset', desc: 'Вже автоматизував частину своєї роботи або команди. Говорить про це природно.' },
+        { id: 'devalues-classic', name: 'Devalues classic approach (positively)', desc: 'Розуміє, що "старий" дизайн-процес стає неефективним. Не ностальгує по ручній роботі.' },
+        { id: 'concrete-cases', name: 'Concrete cases', desc: 'Дає конкретику: що саме, як, який результат, скільки %. Не загальні фрази.' }
+      ]
+    },
+    {
+      id: 'soft',
+      name: 'Soft skills / мотивація',
+      useRubric: false,
+      criteria: [
+        { id: 'systems-thinking', name: 'Systems thinking', desc: 'Мислить системами і масштабуванням, не пікселями.' },
+        { id: 'speed-obsession', name: 'Speed obsession', desc: 'Одержимість скороченням часу від ідеї до рішення.' },
+        { id: 'leverage', name: 'Process efficiency / leverage', desc: 'Фокус на ефективність процесів і leverage, а не лише на якість output.' },
+        { id: 'ownership-soft', name: 'Ownership / проактивність', desc: 'Бере ініціативу, не чекає вказівок, доводить до результату.' },
+        { id: 'communication', name: 'Комунікація', desc: 'Чітко пояснює складні процеси, слухає, адаптується до співрозмовника.' },
+        { id: 'motivation', name: 'Мотивація до ролі', desc: 'Хоче будувати новий процес з нуля, впроваджувати сміливі AI-рішення. Не "робити руками".' }
+      ]
+    },
+    {
+      id: 'principles',
+      name: 'Принципи Lalafo',
+      useRubric: false,
+      criteria: PRINCIPLES.map(p => ({ id: p.id, name: p.name, desc: p.desc }))
+    }
+  ],
+  questions: [
+    'Як ти зараз робиш продуктовий дизайн?',
+    'Що саме ти автоматизував через AI? Наведи 2–3 конкретні кейси.',
+    'Який % роботи в тебе робить AI?',
+    'Приклад фічі, яку ти зробив на 70–90% через AI — розкажи покроково.',
+    'Як ти бачиш роль дизайнера у 2027–2028? Що зникне, що залишиться?',
+    'Розкажи про кейс, де ти побудував процес з нуля (а не просто виконав дизайн).',
+    'Які промпти / агенти / workflow ти зберіг собі як "must have" інструменти?',
+    'Де AI сьогодні ще не тягне, і як ти це обходиш?'
+  ],
+  redFlags: [
+    '"Читав / бачив / пробував" без конкретики',
+    'Відсутність реальних кейсів автоматизації',
+    'Фокус на ручній роботі, ностальгія по "класичному" процесу',
+    'Класичний дизайнер без AI-практики',
+    'Не може дати % автоматизації або час, що економиться',
+    'Говорить загально про "AI допомагає", без конкретних пайплайнів'
+  ]
+};
+
+// ============================================================
+// PRE-CONFIGURED ROLE: DevOps Engineer (AI-Ready Infrastructure)
+// ============================================================
+const DEFAULT_ROLE_DEVOPS = {
+  id: 'devops-ai-ready',
+  name: 'DevOps Engineer (AI-Ready Infrastructure)',
+  level: 'Senior',
+  description: 'Власник інфраструктури Lalafo: Kubernetes, бази даних, CI/CD, моніторинг на Hetzner + AWS. Одночасно driver AI-adoption у DevOps: LiteLLM-gateway, LLM на K8s, AI в workflows (code review, incident management, автоматизація рутини).',
+  languages: 'Англійська Upper-Intermediate+, Українська — носій',
+  sections: [
+    {
+      id: 'hard',
+      name: 'Hard skills (core infrastructure)',
+      useRubric: true,
+      criteria: [
+        {
+          id: 'kubernetes',
+          name: 'Kubernetes production ownership — MUST HAVE',
+          desc: 'Helm, RBAC, network policies, HPA/VPA, cluster upgrades, troubleshooting складних проблем у проді.',
+          rubric: {
+            below: '🚩 Тільки managed-кластери або learning projects. Не робив upgrades, не дебажив production issues.',
+            meets: 'Адмініструє продакшн K8s. Впевнено з Helm, RBAC, NetworkPolicies, HPA/VPA. Робив cluster upgrades.',
+            exceeds: 'Будував K8s з нуля або мігрував. Fine-tune HPA/VPA під реальне навантаження. Troubleshooting складних network/scheduling issues.'
+          }
+        },
+        {
+          id: 'databases',
+          name: 'Бази даних: PostgreSQL, MongoDB, Redis, ClickHouse',
+          desc: 'Replication, backups, performance monitoring, migrations. Production tuning, а не developer-level.',
+          rubric: {
+            below: 'Developer-рівень: вміє писати запити, але не адмініструв replication/backup/performance.',
+            meets: 'Адмініструв щонайменше 2–3 з них у проді: replication, backup, monitoring, базовий tuning.',
+            exceeds: 'Troubleshooting складних performance-проблем. Досвід міграцій, disaster recovery. Розуміє внутрішню механіку (MVCC, storage engines).'
+          }
+        },
+        {
+          id: 'cicd-gitops',
+          name: 'CI/CD + GitOps (GitLab CI)',
+          desc: 'Advanced pipelines, environments, security scanning, GitOps-практики (ArgoCD / Flux).',
+          rubric: {
+            below: 'Писав базові .gitlab-ci.yml. GitOps не використовував.',
+            meets: 'Складні GitLab pipelines, multi-env деплой, security scanning. Впроваджував GitOps.',
+            exceeds: 'Дизайнив CI/CD для команди / платформи. GitOps як основний деплой-патерн. Оптимізував час пайплайнів у разі.'
+          }
+        },
+        {
+          id: 'cloud-infra',
+          name: 'Cloud & infrastructure (Hetzner + AWS)',
+          desc: 'Hetzner (bare-metal / cloud) + AWS (EC2, S3, RDS, IAM, VPC, EKS). Scalability, fault tolerance, cost control.',
+          rubric: {
+            below: 'Працював лише з одним провайдером. Не робив cost optimization або fault tolerance design.',
+            meets: 'Досвід з AWS або Hetzner у проді. Розуміє VPC, IAM, security groups. Робив cost optimization.',
+            exceeds: 'Дизайнив архітектуру з нуля на Hetzner або hybrid. Конкретні кейси cost reduction. Multi-region fault tolerance.'
+          }
+        },
+        {
+          id: 'monitoring-slo',
+          name: 'Моніторинг + SLI/SLO (Grafana, Prometheus, InfluxDB)',
+          desc: 'Dashboards, alerts, визначення SLI/SLO для сервісів. Proactive monitoring.',
+          rubric: {
+            below: 'Ставив дашборди за шаблоном. SLI/SLO не визначав.',
+            meets: 'Будує dashboards і alerts. Визначав SLI/SLO для окремих сервісів. PromQL впевнено.',
+            exceeds: 'Будував observability-стек для платформи. SLO-based alerting, error budgets. Впроваджував культуру SLO в команді.'
+          }
+        },
+        {
+          id: 'linux',
+          name: 'Linux/Ubuntu адміністрування',
+          desc: 'systemd, networking, iptables/nftables, DNS, filesystems, security hardening, performance tuning.',
+          rubric: {
+            below: 'Поверхневе знання. Плутається в systemd або networking.',
+            meets: 'Впевнене адміністрування Ubuntu. Робив security hardening, network diagnostics, performance tuning.',
+            exceeds: 'Deep-level: kernel parameters, ядерні механізми, файлові системи. Troubleshooting на рівні strace/perf.'
+          }
+        },
+        {
+          id: 'docker',
+          name: 'Docker (production best practices)',
+          desc: 'Оптимізовані образи, multi-stage builds, security best practices.',
+          rubric: {
+            below: 'Пише Dockerfile як quickstart. Не оптимізував розмір, не думав про security.',
+            meets: 'Multi-stage builds, мінімізація шарів, non-root user, scanning образів.',
+            exceeds: 'Distroless / scratch images, reproducible builds, supply-chain security (SBOM, signing).'
+          }
+        },
+        {
+          id: 'scripting',
+          name: 'Python + Bash (automation)',
+          desc: 'Автоматизація рутини, скриптинг для infra. Не "copy-paste зі Stack Overflow".',
+          rubric: {
+            below: 'Тільки прості bash-скрипти. Python — базово.',
+            meets: 'Пише автоматизацію на Python + Bash. Має власні tooling-скрипти для щоденних задач.',
+            exceeds: 'Будував внутрішні tools / CLI для команди. Складна автоматизація з обробкою помилок, логуванням, тестами.'
+          }
+        },
+        {
+          id: 'language-en',
+          name: 'English Upper-Intermediate+',
+          desc: 'Читання логів, технічної документації, написання документації, комунікація з англомовними колегами.',
+          rubric: {
+            below: 'Нижче B2. Труднощі зі складною документацією або написанням пост-мортемів.',
+            meets: 'B2+: впевнено читає і пише технічні тексти, комунікує з колегами.',
+            exceeds: 'C1: вільно веде технічні дискусії, пише якісну документацію і пост-мортеми.'
+          }
+        }
+      ]
+    },
+    {
+      id: 'ai-infra',
+      name: 'AI Adoption & AI Infrastructure — ядро ролі',
+      useRubric: true,
+      criteria: [
+        {
+          id: 'litellm-gateway',
+          name: 'LiteLLM / AI Gateway — MUST HAVE (або сильний fast-learner)',
+          desc: 'Розгортання і адміністрування AI Gateway для уніфікованого доступу до LLM-провайдерів (OpenAI, Anthropic, Vertex AI, Bedrock).',
+          rubric: {
+            below: '🚩 Не працював з AI Gateway. Не розуміє абстракцію над LLM API. Слабка мотивація вчитись.',
+            meets: 'Розгортав LiteLLM або аналог. Налаштовував routing, rate limiting, logging. Або: сильна мотивація + схожий досвід з API gateways.',
+            exceeds: 'Production LiteLLM з fallback-стратегіями, cost tracking, multi-provider routing. Може дизайнити такий gateway з нуля.'
+          }
+        },
+        {
+          id: 'llm-on-k8s',
+          name: 'LLM/ML інфра на Kubernetes',
+          desc: 'GPU scheduling, model serving (vLLM / TGI / Triton), оптимізація latency/throughput.',
+          rubric: {
+            below: 'Не працював з GPU на K8s. Не розуміє model serving.',
+            meets: 'Деплоїв моделі на K8s з GPU. Знає хоча б один model server (vLLM / TGI / Triton).',
+            exceeds: 'Production LLM serving на K8s. Tuning GPU scheduling, autoscaling під ML-навантаження, inference optimization.'
+          }
+        },
+        {
+          id: 'ai-in-workflows',
+          name: 'AI у DevOps workflows (hands-on практика)',
+          desc: 'AI code review, AI-assisted incident management, автоматизація рутини. Не "чув про" — щоденна практика.',
+          rubric: {
+            below: '🚩 "Пробував ChatGPT". Немає кейсів інтеграції AI у DevOps-процеси.',
+            meets: 'Використовує AI щодня: генерація IaC, дебагінг, пост-мортеми. Має власні промпти / CLI-тулінги.',
+            exceeds: 'Впровадив AI-workflow для команди: AI-assisted on-call, auto-remediation, AI code review. Вимірний impact.'
+          }
+        },
+        {
+          id: 'ai-cost-monitoring',
+          name: 'Cost/performance моніторинг AI-сервісів',
+          desc: 'Token usage tracking, latency optimization, cost allocation per team/feature.',
+          rubric: {
+            below: 'Не розуміє cost-модель LLM API. Не моніторив token usage.',
+            meets: 'Моніторив costs і latency для LLM. Робив базову оптимізацію токенів.',
+            exceeds: 'Будував cost-dashboards з allocation по командах/фічах. Оптимізував prompts і routing для скорочення costs на X%.'
+          }
+        }
+      ]
+    },
+    {
+      id: 'soft',
+      name: 'Soft skills / мотивація',
+      useRubric: false,
+      criteria: [
+        { id: 'proactive', name: 'Proactive mindset', desc: 'Ідентифікує проблеми до того, як вони стали інцидентами. Preventive measures, capacity planning.' },
+        { id: 'mentoring', name: 'Mentoring junior/middle', desc: 'Реальний досвід менторингу: code/infra reviews, навчання troubleshooting, передача знань.' },
+        { id: 'incident-mgmt', name: 'Incident management + post-mortems', desc: 'Веде інциденти спокійно. Пише структуровані blameless post-mortem. Імплементує preventive actions.' },
+        { id: 'documentation', name: 'Документація (JIRA / Confluence)', desc: 'Пише runbooks, архітектурні документи, пост-мортеми. Не лишає знання в голові.' },
+        { id: 'oncall', name: 'On-call готовність', desc: 'Комфортно в on-call ротаціях. Не вигоряє, тримає якість відповідей, дотримується escalation-процесу.' },
+        { id: 'communication', name: 'Комунікація', desc: 'Пояснює складне простою мовою. Коректний blameless-тон у кризах. Слухає колег.' }
+      ]
+    },
+    {
+      id: 'nice-to-have',
+      name: 'Nice to have (бонусні пункти)',
+      useRubric: false,
+      criteria: [
+        { id: 'queues', name: 'Kafka / RabbitMQ (production)', desc: 'Production-досвід: партиціонування, rebalancing, monitoring, troubleshooting.' },
+        { id: 'mlops', name: 'MLOps (vLLM, TGI, Triton, experiment tracking)', desc: 'Model serving, experiment tracking, ML pipelines.' },
+        { id: 'mcp-rag', name: 'MCP / AI agents / RAG', desc: 'Знайомий з Model Context Protocol, будував AI-агентів або RAG-архітектуру.' },
+        { id: 'mesh', name: 'Service mesh (Istio, Linkerd)', desc: 'Production-досвід: traffic management, mTLS, observability через mesh.' },
+        { id: 'vault-certs', name: 'HashiCorp Vault, cert-manager', desc: 'Secrets management, PKI, автоматична ротація сертифікатів.' },
+        { id: 'networking-deep', name: 'Networking deep (TCP/IP, HTTP/2, gRPC, TLS)', desc: 'Розуміння протоколів на рівні для debug performance/security issues.' },
+        { id: 'gpu-infra', name: 'GPU infrastructure for ML/AI', desc: 'GPU scheduling, NCCL, multi-GPU training infra.' },
+        { id: 'cloudflare', name: 'Cloudflare (WAF, Workers, Zero Trust)', desc: 'Не лише DNS — Workers для логіки, Zero Trust для доступу, WAF-правила.' }
+      ]
+    },
+    {
+      id: 'principles',
+      name: 'Принципи Lalafo',
+      useRubric: false,
+      criteria: PRINCIPLES.map(p => ({ id: p.id, name: p.name, desc: p.desc }))
+    }
+  ],
+  questions: [
+    'Опиши Kubernetes-кластер, яким зараз керуєш: розмір, навантаження, найбільший біль.',
+    'Розкажи про найскладніший production-інцидент за останній рік — що сталось, root cause, що змінив після.',
+    'Як ти використовуєш AI у щоденній DevOps-роботі? 2–3 конкретні кейси з результатом.',
+    'Чи налаштовував LiteLLM або інший AI Gateway? Розкажи про routing / fallbacks / rate limiting / cost tracking.',
+    'GPU scheduling на K8s — твій досвід. Які виклики і як вирішував?',
+    'SLI/SLO, які ти сам визначав — як вибирав метрики, як комунікував з продуктом/інженерами?',
+    'Кейс cost optimization інфри — що оптимізував, яка економія, які trade-offs.',
+    'Як у тебе виглядає GitOps / CI/CD зараз? Що б покращив, якби починав з нуля?',
+    'Розкажи про кейс менторингу: як навчав колегу troubleshooting або архітектурному мисленню.',
+    'Що робиш щоденно, щоб бути proactive, а не reactive? Конкретні практики.'
+  ],
+  redFlags: [
+    'Немає production-досвіду з K8s (тільки managed або learning projects)',
+    'Не може описати реальний інцидент і post-mortem',
+    '"Пробував AI" без щоденної hands-on практики у DevOps',
+    'Не знає cost/performance trade-offs у хмарі або в LLM API',
+    'Reactive підхід: чекає, поки зламається',
+    'Немає досвіду менторингу — тільки individual contributor рівень',
+    'Не адмініструв БД у проді (replication / backup / tuning)',
+    'Не пише документацію / post-mortems (або робить це поверхово)'
+  ]
+};
+
+// Candidate profile reminder (shown on feedback form for this role)
+const ROLE_PROFILE_NOTE = {
+  'uiux-ai-first': 'Пріоритет: практик, який вже використовує AI у роботі і оптимізував процеси (навіть на рівні себе/маленької команди). Також розглядаємо досвідчених з трансформацій дизайну. НЕ розглядаємо: класичних дизайнерів без AI-практики і тих, хто хоче "робити руками" без автоматизації.',
+  'devops-ai-ready': 'Пріоритет: Senior DevOps з production K8s + реальною AI-практикою у DevOps-workflows (LiteLLM / AI в on-call / auto-remediation). Шукаємо власника інфри, який драйвить AI-adoption, а не виконавця тикетів. НЕ підходять: класичні SRE без AI-досвіду, junior/middle без менторингу, реактивні "гасять пожежі" без превентиви.'
+};
+
+// ============================================================
+// STATE
+// ============================================================
+const STORAGE_KEY = 'lalafo-interview-feedback-v1';
+let state = loadState();
+let currentView = 'feedback';
+let currentParams = {};
+
+function loadState() {
+  const DEFAULTS = [DEFAULT_ROLE, DEFAULT_ROLE_DEVOPS];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      if (!data.roles || data.roles.length === 0) data.roles = DEFAULTS.map(r => JSON.parse(JSON.stringify(r)));
+      if (!data.candidates) data.candidates = [];
+      if (!data.feedbacks) data.feedbacks = [];
+      // Seed any missing default role without overwriting user edits
+      DEFAULTS.forEach(def => {
+        if (!data.roles.find(r => r.id === def.id)) {
+          data.roles.push(JSON.parse(JSON.stringify(def)));
+        }
+      });
+      return data;
+    }
+  } catch (e) { console.warn('loadState error', e); }
+  return { roles: DEFAULTS.map(r => JSON.parse(JSON.stringify(r))), candidates: [], feedbacks: [] };
+}
+
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  catch (e) { console.warn('saveState error', e); }
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+function navigate(view, params = {}) {
+  currentView = view;
+  currentParams = params;
+  window.scrollTo(0, 0);
+  render();
+}
+
+// ============================================================
+// RENDER ROUTER
+// ============================================================
+function render() {
+  document.querySelectorAll('nav button').forEach(btn => {
+    const v = btn.dataset.view;
+    btn.classList.toggle('active',
+      v === currentView ||
+      (v === 'candidates' && currentView === 'candidate') ||
+      (v === 'roles' && currentView === 'roleEditor'));
+  });
+  const fn = {
+    feedback: viewFeedback,
+    candidates: viewCandidates,
+    candidate: viewCandidate,
+    compare: viewCompare,
+    roles: viewRoles,
+    roleEditor: viewRoleEditor,
+    data: viewData
+  }[currentView] || viewFeedback;
+  document.getElementById('view').innerHTML = fn();
+  attachHandlers();
+}
+
+// ============================================================
+// VIEW: FEEDBACK FORM
+// ============================================================
+function viewFeedback() {
+  const roleOptions = state.roles.map(r =>
+    `<option value="${r.id}">${escapeHtml(r.name)}${r.level ? ' · ' + escapeHtml(r.level) : ''}</option>`
+  ).join('');
+  const candidateOptions = state.candidates.map(c =>
+    `<option value="${c.id}" data-role="${c.roleId}">${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</option>`
+  ).join('');
+  const today = new Date().toISOString().slice(0, 10);
+  return `
+    <h2>📝 Новий фідбек з інтерв'ю</h2>
+    <div class="info">
+      <b>Інструкція:</b> Заповнюй форму <b>відразу після інтерв'ю, до обговорення з колегами</b> — це зменшує group-think. Коментарі до оцінок обов'язкові: потрібні факти / цитати з інтерв'ю, а не враження.
+    </div>
+    <form id="feedback-form" onsubmit="return false">
+      <h3>1. Метадані інтерв'ю</h3>
+      <div class="section">
+        <div class="row">
+          <div class="field">
+            <label>Роль <span class="required">*</span></label>
+            <select name="roleId" id="role-select" required>${roleOptions}</select>
+          </div>
+          <div class="field">
+            <label>Кандидат <span class="required">*</span></label>
+            <select name="candidateMode" id="cand-mode">
+              <option value="new">➕ Новий кандидат</option>
+              ${state.candidates.length ? '<option value="existing">Обрати існуючого</option>' : ''}
+            </select>
+          </div>
+        </div>
+        <div id="cand-new-fields">
+          <div class="row">
+            <div class="field">
+              <label>Ім'я <span class="required">*</span></label>
+              <input type="text" name="firstName" required>
+            </div>
+            <div class="field">
+              <label>Прізвище <span class="required">*</span></label>
+              <input type="text" name="lastName" required>
+            </div>
+          </div>
+        </div>
+        <div id="cand-existing-fields" style="display:none">
+          <div class="field">
+            <label>Кандидат</label>
+            <select name="candidateId" id="candidate-select">${candidateOptions}</select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Дата інтерв'ю <span class="required">*</span></label>
+            <input type="date" name="date" value="${today}" required>
+          </div>
+          <div class="field">
+            <label>Інтерв'юер (ім'я прізвище) <span class="required">*</span></label>
+            <input type="text" name="interviewer" required placeholder="напр., Tatyana Kochereva">
+          </div>
+          <div class="field">
+            <label>Роль інтерв'юера</label>
+            <select name="interviewerRole">
+              <option value="hr">HR</option>
+              <option value="hiring-manager" selected>Хайрінг менеджер</option>
+              <option value="tech">Технічний експерт</option>
+              <option value="other">Інше</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="role-profile-note"></div>
+      <div id="role-sections"></div>
+      <h3>Фінальна рекомендація</h3>
+      <div class="section">
+        <div class="field">
+          <label>Рекомендація <span class="required">*</span></label>
+          <div class="rating-group" data-name="recommendation">
+            <label data-val="strong-no"><input type="radio" name="recommendation" value="strong-no" required><span>Strong No</span></label>
+            <label data-val="no"><input type="radio" name="recommendation" value="no"><span>No</span></label>
+            <label data-val="yes"><input type="radio" name="recommendation" value="yes"><span>Yes</span></label>
+            <label data-val="strong-yes"><input type="radio" name="recommendation" value="strong-yes"><span>Strong Yes</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Впевненість у рішенні <span class="required">*</span></label>
+          <div class="rating-group" data-name="confidence">
+            <label data-val="low"><input type="radio" name="confidence" value="low" required><span>Low</span></label>
+            <label data-val="medium"><input type="radio" name="confidence" value="medium"><span>Medium</span></label>
+            <label data-val="high"><input type="radio" name="confidence" value="high"><span>High</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Підсумковий коментар <span class="required">*</span></label>
+          <textarea name="summary" required placeholder="2–4 речення: що запам'яталось, основні сильні сторони і ризики, що перевірити на наступних етапах."></textarea>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn" onclick="submitFeedback()">💾 Зберегти фідбек</button>
+        <button type="button" class="btn secondary" onclick="navigate('feedback')">Скинути форму</button>
+      </div>
+    </form>
+  `;
+}
+
+function renderRoleSections(roleId) {
+  const role = state.roles.find(r => r.id === roleId);
+  if (!role) return '';
+  let html = '';
+  let idx = 2;
+  role.sections.forEach(section => {
+    html += `<h3>${idx++}. ${escapeHtml(section.name)}</h3><div class="section">`;
+    section.criteria.forEach(c => {
+      const cid = `${section.id}__${c.id}`;
+      const rubric = section.useRubric && c.rubric ? `
+        <div class="rubric">
+          <div class="rubric-item"><b>Нижче:</b> ${escapeHtml(c.rubric.below || '')}</div>
+          <div class="rubric-item"><b>Відповідає:</b> ${escapeHtml(c.rubric.meets || '')}</div>
+          <div class="rubric-item"><b>Перевищує:</b> ${escapeHtml(c.rubric.exceeds || '')}</div>
+        </div>` : '';
+      html += `
+        <div class="criterion">
+          <div class="criterion-title">${escapeHtml(c.name)}</div>
+          <div class="criterion-desc">${escapeHtml(c.desc || '')}</div>
+          ${rubric}
+          <div class="rating-group" data-name="score__${cid}">
+            <label data-val="below"><input type="radio" name="score__${cid}" value="below" required><span>Нижче</span></label>
+            <label data-val="meets"><input type="radio" name="score__${cid}" value="meets"><span>Відповідає</span></label>
+            <label data-val="exceeds"><input type="radio" name="score__${cid}" value="exceeds"><span>Перевищує</span></label>
+          </div>
+          <textarea name="comment__${cid}" required placeholder="Обґрунтування (обов'язково): конкретні факти / цитати з інтерв'ю. Що саме сказав кандидат, що зробив, які приклади навів."></textarea>
+        </div>
+      `;
+    });
+    html += '</div>';
+  });
+  if (role.questions && role.questions.length) {
+    html += `<h3>${idx++}. Калібраційні питання (довідка)</h3>
+      <div class="section">
+        <div class="info">Що варто почути від кандидата. Не обов'язково ставити усі — обирай під контекст.</div>
+        ${role.questions.map(q => `<div class="question-item">${escapeHtml(q)}</div>`).join('')}
+      </div>`;
+  }
+  if (role.redFlags && role.redFlags.length) {
+    html += `<h3>${idx++}. Red flags (відмітьте те, що побачили)</h3>
+      <div class="section">
+        ${role.redFlags.map((f, i) => `
+          <label class="checkbox-item">
+            <input type="checkbox" name="redFlag__${i}" value="${escapeHtml(f)}">
+            <span>🚩 ${escapeHtml(f)}</span>
+          </label>
+        `).join('')}
+      </div>`;
+  }
+  return html;
+}
+
+// ============================================================
+// VIEW: CANDIDATES LIST
+// ============================================================
+function viewCandidates() {
+  if (state.candidates.length === 0) {
+    return `<h2>👥 Кандидати</h2>
+      <div class="empty">Ще немає кандидатів.<br><br>
+        <button class="btn" onclick="navigate('feedback')">➕ Додати першого фідбека</button>
+      </div>`;
+  }
+  // Group by role
+  const byRole = {};
+  state.candidates.forEach(c => {
+    const key = c.roleId || 'unknown';
+    if (!byRole[key]) byRole[key] = [];
+    byRole[key].push(c);
+  });
+  let html = `<h2>👥 Кандидати (${state.candidates.length})</h2>`;
+  Object.entries(byRole).forEach(([roleId, cands]) => {
+    const role = state.roles.find(r => r.id === roleId);
+    html += `<h3>${role ? escapeHtml(role.name) : 'Невідома роль'}</h3>`;
+    cands.forEach(c => {
+      const fbs = state.feedbacks.filter(f => f.candidateId === c.id);
+      const avgRec = aggregateRecs(fbs.map(f => f.recommendation));
+      const tags = fbs.map(f => `<span class="tag ${f.recommendation}" title="${escapeHtml(f.interviewer)}">${recText(f.recommendation)}</span>`).join('');
+      html += `
+        <div class="card clickable" onclick="navigate('candidate', {id: '${c.id}'})">
+          <div class="card-title">${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}
+            ${avgRec ? `<span class="tag ${avgRec}" style="margin-left:8px">Agg: ${recText(avgRec)}</span>` : ''}
+          </div>
+          <div class="card-meta">${fbs.length} фідбек(и) · Доданий ${escapeHtml((c.createdAt || '').slice(0,10))}</div>
+          <div style="margin-top:8px">${tags || '<span class="card-meta">Ще немає фідбеку</span>'}</div>
+        </div>
+      `;
+    });
+  });
+  return html;
+}
+
+// ============================================================
+// VIEW: CANDIDATE DETAIL
+// ============================================================
+function viewCandidate() {
+  const c = state.candidates.find(x => x.id === currentParams.id);
+  if (!c) return '<div class="empty">Кандидата не знайдено</div>';
+  const role = state.roles.find(r => r.id === c.roleId);
+  const fbs = state.feedbacks.filter(f => f.candidateId === c.id);
+
+  let html = `<button class="btn small secondary" onclick="navigate('candidates')">← До списку кандидатів</button>
+    <h2 style="margin-top:16px">${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</h2>
+    <div class="card-meta">Роль: <b>${escapeHtml(role ? role.name : '—')}</b> · Фідбеків: <b>${fbs.length}</b></div>`;
+
+  if (fbs.length === 0) {
+    html += '<div class="empty" style="margin-top:20px">Ще немає фідбеків на цього кандидата</div>';
+    html += `<div class="actions"><button class="btn small danger" onclick="deleteCandidate('${c.id}')">🗑 Видалити кандидата</button></div>`;
+    return html;
+  }
+
+  // Aggregate recommendations
+  const avgRec = aggregateRecs(fbs.map(f => f.recommendation));
+  html += `<h3>Зведена рекомендація</h3>
+    <div class="section">
+      <div style="font-size:16px;margin-bottom:10px">
+        ${avgRec ? `<span class="tag ${avgRec}" style="font-size:13px;padding:5px 12px">Агрегована: ${recText(avgRec)}</span>` : ''}
+      </div>`;
+  fbs.forEach(f => {
+    html += `<div style="margin-bottom:8px">
+      <span class="tag ${f.recommendation}">${recText(f.recommendation)}</span>
+      <span class="tag neutral">Впевн: ${confText(f.confidence)}</span>
+      <b>${escapeHtml(f.interviewer)}</b> <span class="dim small">(${escapeHtml(f.interviewerRole || '')} · ${escapeHtml(f.date)})</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Criteria matrix
+  if (role) {
+    html += '<h3>Оцінки по критеріях</h3>';
+    role.sections.forEach(section => {
+      html += `<div class="section"><h4>${escapeHtml(section.name)}</h4><div class="scroll-x"><table>`;
+      html += '<thead><tr><th>Критерій</th>';
+      fbs.forEach(f => html += `<th>${escapeHtml(f.interviewer.split(' ')[0])}</th>`);
+      html += '<th>Середнє</th></tr></thead><tbody>';
+      section.criteria.forEach(crit => {
+        const cid = `${section.id}__${crit.id}`;
+        const vals = fbs.map(f => f.scores && f.scores[cid] && f.scores[cid].level).filter(Boolean);
+        const avg = aggregateScores(vals);
+        html += `<tr><td>${escapeHtml(crit.name)}</td>`;
+        fbs.forEach(f => {
+          const s = f.scores && f.scores[cid];
+          html += `<td>${s ? `<span class="tag ${s.level}">${scoreText(s.level)}</span>` : '—'}</td>`;
+        });
+        html += `<td>${avg ? `<span class="tag ${avg}">${scoreText(avg)}</span>` : '—'}</td></tr>`;
+      });
+      html += '</tbody></table></div></div>';
+    });
+  }
+
+  // Red flags aggregate
+  const allFlags = {};
+  fbs.forEach(f => (f.redFlags || []).forEach(rf => { allFlags[rf] = (allFlags[rf] || 0) + 1; }));
+  if (Object.keys(allFlags).length) {
+    html += '<h3>🚩 Red flags (сума)</h3><div class="section">';
+    Object.entries(allFlags).forEach(([f, n]) => {
+      html += `<div class="red-flag">🚩 ${escapeHtml(f)} <span class="dim small">(${n} раз${n>1?'и':''})</span></div>`;
+    });
+    html += '</div>';
+  }
+
+  // Individual feedbacks detail
+  html += '<h3>Деталі фідбеків</h3>';
+  fbs.forEach(f => {
+    html += `<details style="margin-bottom:10px"><summary>
+      <b>${escapeHtml(f.interviewer)}</b> · ${escapeHtml(f.date)} ·
+      <span class="tag ${f.recommendation}">${recText(f.recommendation)}</span>
+      <span class="tag neutral">Впевн: ${confText(f.confidence)}</span>
+    </summary><div class="details-body">`;
+    html += `<p style="margin-bottom:12px"><b>Підсумок:</b> ${escapeHtml(f.summary || '')}</p>`;
+    if (role) {
+      role.sections.forEach(section => {
+        const scores = section.criteria.map(crit => ({
+          crit, s: f.scores && f.scores[`${section.id}__${crit.id}`]
+        })).filter(x => x.s);
+        if (scores.length) {
+          html += `<h4>${escapeHtml(section.name)}</h4>`;
+          scores.forEach(({crit, s}) => {
+            html += `<div style="margin-bottom:10px;padding-left:8px;border-left:3px solid var(--border)">
+              <div><b>${escapeHtml(crit.name)}</b> <span class="tag ${s.level}">${scoreText(s.level)}</span></div>
+              <div class="dim small" style="margin-top:3px">${escapeHtml(s.comment || '')}</div>
+            </div>`;
+          });
+        }
+      });
+    }
+    if (f.redFlags && f.redFlags.length) {
+      html += '<h4>🚩 Відмічені red flags:</h4>';
+      f.redFlags.forEach(rf => html += `<div class="red-flag">🚩 ${escapeHtml(rf)}</div>`);
+    }
+    html += `<div class="actions" style="margin-top:16px">
+      <button class="btn small danger" onclick="deleteFeedback('${f.id}')">🗑 Видалити цей фідбек</button>
+    </div></div></details>`;
+  });
+  html += `<div class="actions" style="margin-top:24px">
+    <button class="btn secondary" onclick="navigate('feedback')">➕ Додати фідбек</button>
+    <button class="btn small danger" onclick="deleteCandidate('${c.id}')">🗑 Видалити кандидата</button>
+  </div>`;
+  return html;
+}
+
+// ============================================================
+// VIEW: COMPARE
+// ============================================================
+function viewCompare() {
+  const roleOptions = state.roles.map(r =>
+    `<option value="${r.id}" ${currentParams.roleId === r.id ? 'selected' : ''}>${escapeHtml(r.name)}</option>`
+  ).join('');
+  const roleId = currentParams.roleId || (state.roles[0] && state.roles[0].id);
+  const role = state.roles.find(r => r.id === roleId);
+  if (!role) return '<h2>⚖️ Порівняння</h2><div class="empty">Немає ролей</div>';
+
+  const candidates = state.candidates.filter(c => c.roleId === roleId);
+  let html = `<h2>⚖️ Порівняння кандидатів</h2>
+    <div class="row">
+      <div class="field" style="max-width:500px">
+        <label>Роль</label>
+        <select id="compare-role" onchange="navigate('compare', {roleId: this.value})">${roleOptions}</select>
+      </div>
+    </div>`;
+
+  if (candidates.length === 0) {
+    html += '<div class="empty">Немає кандидатів на цю роль</div>';
+    return html;
+  }
+
+  const candData = candidates.map(c => {
+    const fbs = state.feedbacks.filter(f => f.candidateId === c.id);
+    const avgScores = {};
+    role.sections.forEach(section => {
+      section.criteria.forEach(crit => {
+        const cid = `${section.id}__${crit.id}`;
+        const vals = fbs.map(f => f.scores && f.scores[cid] && f.scores[cid].level).filter(Boolean);
+        avgScores[cid] = aggregateScores(vals);
+      });
+    });
+    return { c, fbs, avgScores, avgRec: aggregateRecs(fbs.map(f => f.recommendation)) };
+  });
+
+  html += '<div class="scroll-x"><table>';
+  html += '<thead><tr><th style="min-width:240px">Критерій</th>';
+  candData.forEach(({c}) => html += `<th>${escapeHtml(c.firstName)} ${escapeHtml(c.lastName)}</th>`);
+  html += '</tr></thead><tbody>';
+  html += '<tr><td><b>Рекомендація (агрегована)</b></td>';
+  candData.forEach(({avgRec, fbs}) => {
+    html += `<td>${avgRec ? `<span class="tag ${avgRec}">${recText(avgRec)}</span>` : '—'}<br><span class="dim small">${fbs.length} фідбек(и)</span></td>`;
+  });
+  html += '</tr>';
+  role.sections.forEach(section => {
+    html += `<tr><td colspan="${candData.length + 1}" style="background:var(--green-light);font-weight:600;color:var(--green-dark)">${escapeHtml(section.name)}</td></tr>`;
+    section.criteria.forEach(crit => {
+      const cid = `${section.id}__${crit.id}`;
+      html += `<tr><td>${escapeHtml(crit.name)}</td>`;
+      candData.forEach(({avgScores}) => {
+        const s = avgScores[cid];
+        html += `<td>${s ? `<span class="tag ${s}">${scoreText(s)}</span>` : '—'}</td>`;
+      });
+      html += '</tr>';
+    });
+  });
+  html += '</tbody></table></div>';
+  html += `<div class="actions">
+    <button class="btn" onclick="exportCompareCSV('${roleId}')">⬇️ Експорт порівняння (CSV)</button>
+  </div>`;
+  return html;
+}
+
+// ============================================================
+// VIEW: ROLES LIST
+// ============================================================
+function viewRoles() {
+  let html = '<h2>⚙️ Ролі (конструктор)</h2>';
+  html += `<div class="info">
+    Тут ти можеш додавати нові ролі. Кожна роль складається з <b>секцій</b> (напр., Hard skills, Soft skills, Принципи),
+    у кожній секції — <b>критерії</b> з описом. Для hard skills можна задати детальний rubric (Нижче/Відповідає/Перевищує).
+  </div>`;
+  html += '<div class="actions" style="margin-bottom:16px">';
+  html += `<button class="btn" onclick="navigate('roleEditor', {id: 'new'})">➕ Створити роль з нуля</button>`;
+  if (state.roles.find(r => r.id === 'uiux-ai-first')) {
+    html += `<button class="btn secondary" onclick="duplicateRole('uiux-ai-first')">📋 Створити на основі UI/UX AI-First</button>`;
+  }
+  html += '</div>';
+  state.roles.forEach(r => {
+    const cands = state.candidates.filter(c => c.roleId === r.id).length;
+    const crits = r.sections.reduce((s, sec) => s + sec.criteria.length, 0);
+    html += `<div class="card">
+      <div class="card-title">${escapeHtml(r.name)} ${r.level ? `<span class="dim small">· ${escapeHtml(r.level)}</span>` : ''}</div>
+      <div class="card-meta">${r.sections.length} секції · ${crits} критеріїв · ${cands} кандидат(и)</div>
+      ${r.description ? `<div class="small dim" style="margin-top:8px">${escapeHtml(r.description)}</div>` : ''}
+      <div class="actions" style="margin-top:12px">
+        <button class="btn small secondary" onclick="navigate('roleEditor', {id: '${r.id}'})">✏️ Редагувати</button>
+        <button class="btn small secondary" onclick="duplicateRole('${r.id}')">📋 Дублювати</button>
+        <button class="btn small danger" onclick="deleteRole('${r.id}')">🗑 Видалити</button>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+// ============================================================
+// VIEW: ROLE EDITOR
+// ============================================================
+function viewRoleEditor() {
+  if (!window._editingRole || window._editingRole._startedForId !== currentParams.id) {
+    const isNew = currentParams.id === 'new';
+    const base = isNew ? {
+      id: uid(),
+      name: '',
+      level: '',
+      description: '',
+      languages: '',
+      sections: [
+        { id: 'hard', name: 'Hard skills (професійні вимоги)', useRubric: true, criteria: [] },
+        { id: 'soft', name: 'Soft skills / мотивація', useRubric: false, criteria: [
+          { id: 'ownership', name: 'Ownership / проактивність', desc: 'Бере ініціативу, не чекає вказівок.' },
+          { id: 'communication', name: 'Комунікація', desc: 'Чітко пояснює ідеї, слухає, адаптується.' },
+          { id: 'motivation', name: 'Мотивація до ролі', desc: 'Чи справді хоче цю роль і розуміє очікування.' }
+        ]},
+        { id: 'principles', name: 'Принципи Lalafo', useRubric: false, criteria: PRINCIPLES.map(p => ({ id: p.id, name: p.name, desc: p.desc })) }
+      ],
+      questions: [],
+      redFlags: []
+    } : JSON.parse(JSON.stringify(state.roles.find(r => r.id === currentParams.id) || {}));
+    if (!base.id) return '<div class="empty">Роль не знайдено</div>';
+    base._startedForId = currentParams.id;
+    window._editingRole = base;
+  }
+  return renderRoleEditor();
+}
+
+function renderRoleEditor() {
+  const r = window._editingRole;
+  const isNew = !state.roles.find(x => x.id === r.id);
+  let html = `<button class="btn small secondary" onclick="navigate('roles')">← До ролей</button>
+    <h2 style="margin-top:16px">${isNew ? '➕ Нова роль' : '✏️ Редагування: ' + escapeHtml(r.name || '—')}</h2>
+    <div class="info">Це конструктор. Зміни зберігаються тільки після кнопки «💾 Зберегти роль» внизу.</div>
+    <div class="section">
+      <div class="row">
+        <div class="field">
+          <label>Назва ролі <span class="required">*</span></label>
+          <input type="text" value="${escapeHtml(r.name)}" oninput="window._editingRole.name=this.value">
+        </div>
+        <div class="field">
+          <label>Рівень</label>
+          <input type="text" value="${escapeHtml(r.level || '')}" oninput="window._editingRole.level=this.value" placeholder="Junior / Mid / Senior / Lead">
+        </div>
+      </div>
+      <div class="field">
+        <label>Короткий опис / профіль кандидата</label>
+        <textarea oninput="window._editingRole.description=this.value" placeholder="Опиши, кого шукаємо і що важливо. 2–4 речення.">${escapeHtml(r.description || '')}</textarea>
+      </div>
+      <div class="field">
+        <label>Мовні вимоги</label>
+        <input type="text" value="${escapeHtml(r.languages || '')}" oninput="window._editingRole.languages=this.value" placeholder="Напр., Англійська B1+, Українська — носій">
+      </div>
+    </div>`;
+
+  r.sections.forEach((section, sIdx) => {
+    html += `<h3>Секція ${sIdx + 1}: ${escapeHtml(section.name)}</h3>
+      <div class="section">
+        <div class="row">
+          <div class="field">
+            <label>Назва секції</label>
+            <input type="text" value="${escapeHtml(section.name)}" oninput="window._editingRole.sections[${sIdx}].name=this.value">
+          </div>
+          <div class="field">
+            <label>Детальний rubric (Нижче/Відповідає/Перевищує)?</label>
+            <select onchange="window._editingRole.sections[${sIdx}].useRubric=(this.value==='yes'); render()">
+              <option value="yes" ${section.useRubric ? 'selected' : ''}>Так — з описами рівнів</option>
+              <option value="no" ${!section.useRubric ? 'selected' : ''}>Ні — тільки оцінка + коментар</option>
+            </select>
+          </div>
+        </div>`;
+    section.criteria.forEach((c, cIdx) => {
+      html += `<div class="criterion">
+        <div class="row">
+          <div class="field">
+            <label>Назва критерію</label>
+            <input type="text" value="${escapeHtml(c.name)}" oninput="window._editingRole.sections[${sIdx}].criteria[${cIdx}].name=this.value">
+          </div>
+        </div>
+        <div class="field">
+          <label>Опис</label>
+          <textarea oninput="window._editingRole.sections[${sIdx}].criteria[${cIdx}].desc=this.value">${escapeHtml(c.desc || '')}</textarea>
+        </div>`;
+      if (section.useRubric) {
+        html += `
+          <div class="field"><label>Нижче очікувань</label><textarea oninput="setRubric(${sIdx},${cIdx},'below',this.value)">${escapeHtml((c.rubric && c.rubric.below) || '')}</textarea></div>
+          <div class="field"><label>Відповідає очікуванням</label><textarea oninput="setRubric(${sIdx},${cIdx},'meets',this.value)">${escapeHtml((c.rubric && c.rubric.meets) || '')}</textarea></div>
+          <div class="field"><label>Перевищує очікування</label><textarea oninput="setRubric(${sIdx},${cIdx},'exceeds',this.value)">${escapeHtml((c.rubric && c.rubric.exceeds) || '')}</textarea></div>`;
+      }
+      html += `<button type="button" class="btn small danger" onclick="removeCriterion(${sIdx},${cIdx})">🗑 Видалити критерій</button></div>`;
+    });
+    html += `<button type="button" class="btn small" onclick="addCriterion(${sIdx})">➕ Додати критерій</button>`;
+    html += `<button type="button" class="btn small danger" style="margin-left:8px" onclick="removeSection(${sIdx})">🗑 Видалити секцію</button>`;
+    html += '</div>';
+  });
+  html += `<div class="actions" style="margin:16px 0"><button type="button" class="btn secondary" onclick="addSection()">➕ Додати секцію</button></div>`;
+
+  html += '<h3>Калібраційні питання</h3><div class="section">';
+  (r.questions || []).forEach((q, qi) => {
+    html += `<div class="row" style="margin-bottom:6px">
+      <div class="field" style="margin:0"><input type="text" value="${escapeHtml(q)}" oninput="window._editingRole.questions[${qi}]=this.value"></div>
+      <button class="btn small danger" style="max-width:60px" onclick="removeQuestion(${qi})">🗑</button>
+    </div>`;
+  });
+  html += `<button type="button" class="btn small" onclick="addQuestion()">➕ Додати питання</button></div>`;
+
+  html += '<h3>Red flags</h3><div class="section">';
+  (r.redFlags || []).forEach((f, fi) => {
+    html += `<div class="row" style="margin-bottom:6px">
+      <div class="field" style="margin:0"><input type="text" value="${escapeHtml(f)}" oninput="window._editingRole.redFlags[${fi}]=this.value"></div>
+      <button class="btn small danger" style="max-width:60px" onclick="removeRedFlag(${fi})">🗑</button>
+    </div>`;
+  });
+  html += `<button type="button" class="btn small" onclick="addRedFlag()">➕ Додати red flag</button></div>`;
+
+  html += `<div class="actions">
+    <button type="button" class="btn" onclick="saveRole()">💾 Зберегти роль</button>
+    <button type="button" class="btn secondary" onclick="(window._editingRole=null,navigate('roles'))">Скасувати</button>
+  </div>`;
+  return html;
+}
+
+// ============================================================
+// VIEW: DATA
+// ============================================================
+function viewData() {
+  return `
+    <h2>💾 Дані та бекап</h2>
+    <div class="info">
+      Дані зберігаються локально в цьому браузері (localStorage). Для передачі колезі або бекапу — використовуй експорт JSON.
+      Для зведеного перегляду в Excel/Sheets — експорт CSV. При колективній роботі: кожен заповнює свою копію,
+      експортує JSON, <b>HR аггрегатор</b> імпортує всі файли режимом <b>«злити»</b>.
+    </div>
+    <div class="section">
+      <h3>Експорт</h3>
+      <div class="actions">
+        <button class="btn" onclick="exportJSON()">⬇️ JSON (повний бекап)</button>
+        <button class="btn" onclick="exportAllCSV()">⬇️ Усі фідбеки (CSV)</button>
+      </div>
+    </div>
+    <div class="section">
+      <h3>Імпорт</h3>
+      <div class="field">
+        <label>Файл JSON</label>
+        <input type="file" id="import-file" accept=".json">
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="importJSON('merge')">🔀 Злити з поточними даними</button>
+        <button class="btn secondary" onclick="importJSON('replace')">♻️ Замінити всі дані</button>
+      </div>
+      <div class="warning" style="margin-top:10px">Перед «замінити» рекомендую спочатку експортувати бекап.</div>
+    </div>
+    <div class="section">
+      <h3>Статистика</h3>
+      <p>Ролей: <b>${state.roles.length}</b></p>
+      <p>Кандидатів: <b>${state.candidates.length}</b></p>
+      <p>Фідбеків: <b>${state.feedbacks.length}</b></p>
+    </div>
+    <div class="section">
+      <h3 style="color:var(--red)">⚠️ Небезпечна зона</h3>
+      <button class="btn danger" onclick="clearAll()">🗑 Очистити всі дані</button>
+    </div>
+  `;
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]);
+}
+function recText(r) { return { 'strong-no':'Strong No','no':'No','yes':'Yes','strong-yes':'Strong Yes' }[r] || r || '—'; }
+function confText(c) { return { 'low':'Low','medium':'Medium','high':'High' }[c] || c || '—'; }
+function scoreText(s) { return { 'below':'Нижче','meets':'Відповідає','exceeds':'Перевищує' }[s] || s || '—'; }
+function aggregateScores(vals) {
+  if (!vals || vals.length === 0) return null;
+  const map = { below: 1, meets: 2, exceeds: 3 };
+  const avg = vals.reduce((a, v) => a + (map[v] || 0), 0) / vals.length;
+  if (avg < 1.67) return 'below';
+  if (avg < 2.34) return 'meets';
+  return 'exceeds';
+}
+function aggregateRecs(vals) {
+  if (!vals || vals.length === 0) return null;
+  const filtered = vals.filter(Boolean);
+  if (filtered.length === 0) return null;
+  const map = { 'strong-no': 1, 'no': 2, 'yes': 3, 'strong-yes': 4 };
+  const avg = filtered.reduce((a, v) => a + (map[v] || 0), 0) / filtered.length;
+  if (avg < 1.5) return 'strong-no';
+  if (avg < 2.5) return 'no';
+  if (avg < 3.5) return 'yes';
+  return 'strong-yes';
+}
+
+// ============================================================
+// HANDLERS
+// ============================================================
+function attachHandlers() {
+  const form = document.getElementById('feedback-form');
+  if (form) {
+    const roleSelect = document.getElementById('role-select');
+    const profileNoteEl = document.getElementById('role-profile-note');
+    const refreshSections = () => {
+      document.getElementById('role-sections').innerHTML = renderRoleSections(roleSelect.value);
+      if (profileNoteEl) {
+        const note = ROLE_PROFILE_NOTE[roleSelect.value];
+        profileNoteEl.innerHTML = note ? `<div class="warning" style="margin-top:4px"><b>Профіль кандидата:</b> ${escapeHtml(note)}</div>` : '';
+      }
+      attachRatingHandlers();
+    };
+    roleSelect.addEventListener('change', refreshSections);
+    refreshSections();
+
+    const candMode = document.getElementById('cand-mode');
+    const firstNameInput = form.querySelector('input[name="firstName"]');
+    const lastNameInput = form.querySelector('input[name="lastName"]');
+    const toggleCand = () => {
+      const isExisting = candMode.value === 'existing';
+      document.getElementById('cand-new-fields').style.display = isExisting ? 'none' : 'block';
+      document.getElementById('cand-existing-fields').style.display = isExisting ? 'block' : 'none';
+      if (firstNameInput) firstNameInput.required = !isExisting;
+      if (lastNameInput) lastNameInput.required = !isExisting;
+      if (isExisting) {
+        const candSel = document.getElementById('candidate-select');
+        const selected = state.candidates.find(c => c.id === candSel.value);
+        if (selected && selected.roleId) {
+          roleSelect.value = selected.roleId;
+          refreshSections();
+        }
+      }
+    };
+    candMode.addEventListener('change', toggleCand);
+    const candSelect = document.getElementById('candidate-select');
+    if (candSelect) {
+      candSelect.addEventListener('change', () => {
+        const selected = state.candidates.find(c => c.id === candSelect.value);
+        if (selected && selected.roleId) {
+          roleSelect.value = selected.roleId;
+          refreshSections();
+        }
+      });
+    }
+    attachRatingHandlers();
+  }
+}
+
+function attachRatingHandlers() {
+  document.querySelectorAll('.rating-group').forEach(group => {
+    group.querySelectorAll('label').forEach(lbl => {
+      const input = lbl.querySelector('input');
+      if (!input) return;
+      input.addEventListener('change', () => {
+        group.querySelectorAll('label').forEach(l => {
+          l.classList.remove('selected', 'below', 'meets', 'exceeds',
+            'strong-no', 'no', 'yes', 'strong-yes', 'low', 'medium', 'high');
+        });
+        lbl.classList.add('selected', lbl.dataset.val);
+      });
+    });
+  });
+}
+
+function submitFeedback() {
+  const form = document.getElementById('feedback-form');
+  if (!form) return;
+  // Validate HTML5 required fields
+  if (!form.reportValidity()) return;
+  const fd = new FormData(form);
+  let candidateId;
+  if (fd.get('candidateMode') === 'existing') {
+    candidateId = fd.get('candidateId');
+    if (!candidateId) { alert('Оберіть кандидата'); return; }
+  } else {
+    const firstName = (fd.get('firstName') || '').trim();
+    const lastName = (fd.get('lastName') || '').trim();
+    if (!firstName || !lastName) { alert('Введіть ім\'я та прізвище'); return; }
+    const c = {
+      id: uid(),
+      firstName, lastName,
+      roleId: fd.get('roleId'),
+      createdAt: new Date().toISOString()
+    };
+    state.candidates.push(c);
+    candidateId = c.id;
+  }
+  const role = state.roles.find(r => r.id === fd.get('roleId'));
+  if (!role) { alert('Роль не знайдено'); return; }
+
+  const scores = {};
+  let missingComments = [];
+  role.sections.forEach(section => {
+    section.criteria.forEach(crit => {
+      const cid = `${section.id}__${crit.id}`;
+      const level = fd.get(`score__${cid}`);
+      const comment = (fd.get(`comment__${cid}`) || '').trim();
+      if (level) {
+        scores[cid] = { level, comment };
+        if (!comment) missingComments.push(crit.name);
+      }
+    });
+  });
+  if (missingComments.length) {
+    alert('Обов\'язкові коментарі відсутні для:\n• ' + missingComments.join('\n• '));
+    return;
+  }
+
+  const redFlags = [];
+  (role.redFlags || []).forEach((rf, i) => {
+    if (fd.get(`redFlag__${i}`)) redFlags.push(rf);
+  });
+
+  const fb = {
+    id: uid(),
+    candidateId,
+    roleId: fd.get('roleId'),
+    date: fd.get('date'),
+    interviewer: (fd.get('interviewer') || '').trim(),
+    interviewerRole: fd.get('interviewerRole'),
+    scores, redFlags,
+    recommendation: fd.get('recommendation'),
+    confidence: fd.get('confidence'),
+    summary: (fd.get('summary') || '').trim(),
+    createdAt: new Date().toISOString()
+  };
+  state.feedbacks.push(fb);
+  saveState();
+  alert('Фідбек збережено ✅');
+  navigate('candidate', { id: candidateId });
+}
+
+function deleteFeedback(id) {
+  if (!confirm('Видалити цей фідбек?')) return;
+  state.feedbacks = state.feedbacks.filter(f => f.id !== id);
+  saveState();
+  render();
+}
+function deleteCandidate(id) {
+  if (!confirm('Видалити кандидата разом з усіма фідбеками?')) return;
+  state.candidates = state.candidates.filter(c => c.id !== id);
+  state.feedbacks = state.feedbacks.filter(f => f.candidateId !== id);
+  saveState();
+  navigate('candidates');
+}
+
+// Role editor
+function addSection() {
+  window._editingRole.sections.push({ id: 'sec-' + uid(), name: 'Нова секція', useRubric: false, criteria: [] });
+  render();
+}
+function removeSection(idx) {
+  if (!confirm('Видалити секцію з усіма критеріями?')) return;
+  window._editingRole.sections.splice(idx, 1);
+  render();
+}
+function addCriterion(sIdx) {
+  window._editingRole.sections[sIdx].criteria.push({ id: 'c-' + uid(), name: 'Новий критерій', desc: '' });
+  render();
+}
+function removeCriterion(sIdx, cIdx) {
+  if (!confirm('Видалити критерій?')) return;
+  window._editingRole.sections[sIdx].criteria.splice(cIdx, 1);
+  render();
+}
+function setRubric(sIdx, cIdx, level, val) {
+  const c = window._editingRole.sections[sIdx].criteria[cIdx];
+  if (!c.rubric) c.rubric = {};
+  c.rubric[level] = val;
+}
+function addQuestion() { window._editingRole.questions.push(''); render(); }
+function removeQuestion(i) { window._editingRole.questions.splice(i, 1); render(); }
+function addRedFlag() { window._editingRole.redFlags.push(''); render(); }
+function removeRedFlag(i) { window._editingRole.redFlags.splice(i, 1); render(); }
+
+function saveRole() {
+  const r = window._editingRole;
+  if (!r.name || !r.name.trim()) { alert('Назва ролі обов\'язкова'); return; }
+  delete r._startedForId;
+  const clean = JSON.parse(JSON.stringify(r));
+  const idx = state.roles.findIndex(x => x.id === clean.id);
+  if (idx >= 0) state.roles[idx] = clean;
+  else state.roles.push(clean);
+  saveState();
+  window._editingRole = null;
+  alert('Роль збережено ✅');
+  navigate('roles');
+}
+function duplicateRole(id) {
+  const r = state.roles.find(x => x.id === id);
+  if (!r) return;
+  const copy = JSON.parse(JSON.stringify(r));
+  copy.id = uid();
+  copy.name = r.name + ' (копія)';
+  state.roles.push(copy);
+  saveState();
+  navigate('roleEditor', { id: copy.id });
+}
+function deleteRole(id) {
+  const r = state.roles.find(x => x.id === id);
+  if (!r) return;
+  if (!confirm(`Видалити роль «${r.name}»? Кандидати залишаться, але без прив'язки.`)) return;
+  state.roles = state.roles.filter(x => x.id !== id);
+  saveState();
+  render();
+}
+
+// Export / import
+function download(filename, content, mime) {
+  const blob = new Blob([content], { type: mime || 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function exportJSON() {
+  const name = `lalafo-feedback-${new Date().toISOString().slice(0,10)}.json`;
+  download(name, JSON.stringify(state, null, 2), 'application/json');
+}
+function csvCell(v) {
+  const s = String(v == null ? '' : v).replace(/\r?\n/g, ' ');
+  return /[",;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function exportAllCSV() {
+  const rows = [['Кандидат','Роль','Дата','Інтерв\'юер','Роль інтерв\'юера','Рекомендація','Впевненість','Секція','Критерій','Оцінка','Коментар','Red flags','Підсумок']];
+  state.feedbacks.forEach(f => {
+    const c = state.candidates.find(x => x.id === f.candidateId);
+    const role = state.roles.find(r => r.id === f.roleId);
+    const candName = c ? `${c.firstName} ${c.lastName}` : '—';
+    const roleName = role ? role.name : '—';
+    if (role) {
+      role.sections.forEach(section => {
+        section.criteria.forEach(crit => {
+          const cid = `${section.id}__${crit.id}`;
+          const s = f.scores && f.scores[cid];
+          if (s) {
+            rows.push([
+              candName, roleName, f.date, f.interviewer, f.interviewerRole || '',
+              recText(f.recommendation), confText(f.confidence),
+              section.name, crit.name, scoreText(s.level), s.comment || '',
+              (f.redFlags || []).join(' | '), f.summary || ''
+            ]);
+          }
+        });
+      });
+    }
+  });
+  const csv = rows.map(r => r.map(csvCell).join(',')).join('\n');
+  download(`lalafo-feedback-${new Date().toISOString().slice(0,10)}.csv`, '\ufeff' + csv, 'text/csv;charset=utf-8');
+}
+function exportCompareCSV(roleId) {
+  const role = state.roles.find(r => r.id === roleId);
+  if (!role) return;
+  const candidates = state.candidates.filter(c => c.roleId === roleId);
+  const rows = [['Критерій', ...candidates.map(c => `${c.firstName} ${c.lastName}`)]];
+  rows.push(['# фідбеків', ...candidates.map(c => state.feedbacks.filter(f => f.candidateId === c.id).length)]);
+  rows.push(['Рекомендація (агрегована)', ...candidates.map(c => {
+    const fbs = state.feedbacks.filter(f => f.candidateId === c.id);
+    return recText(aggregateRecs(fbs.map(f => f.recommendation)));
+  })]);
+  role.sections.forEach(section => {
+    rows.push(['— ' + section.name + ' —']);
+    section.criteria.forEach(crit => {
+      const cid = `${section.id}__${crit.id}`;
+      rows.push([crit.name, ...candidates.map(c => {
+        const fbs = state.feedbacks.filter(f => f.candidateId === c.id);
+        const vals = fbs.map(f => f.scores && f.scores[cid] && f.scores[cid].level).filter(Boolean);
+        return scoreText(aggregateScores(vals));
+      })]);
+    });
+  });
+  const csv = rows.map(r => r.map(csvCell).join(',')).join('\n');
+  const safe = role.name.replace(/[^a-z0-9]+/gi, '_');
+  download(`lalafo-compare-${safe}-${new Date().toISOString().slice(0,10)}.csv`, '\ufeff' + csv, 'text/csv;charset=utf-8');
+}
+
+function importJSON(mode) {
+  const f = document.getElementById('import-file').files[0];
+  if (!f) { alert('Оберіть файл'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.roles || !data.candidates || !data.feedbacks) throw new Error('структура файлу некоректна');
+      if (mode === 'replace') {
+        if (!confirm('Замінити ВСІ поточні дані імпортованими?')) return;
+        state = data;
+      } else {
+        // merge: add by id if not exists
+        const roleIds = new Set(state.roles.map(r => r.id));
+        data.roles.forEach(r => { if (!roleIds.has(r.id)) state.roles.push(r); });
+        const candIds = new Set(state.candidates.map(c => c.id));
+        data.candidates.forEach(c => { if (!candIds.has(c.id)) state.candidates.push(c); });
+        const fbIds = new Set(state.feedbacks.map(f => f.id));
+        data.feedbacks.forEach(f => { if (!fbIds.has(f.id)) state.feedbacks.push(f); });
+      }
+      saveState();
+      alert('Імпорт успішний ✅');
+      navigate('candidates');
+    } catch (err) {
+      alert('Некоректний файл: ' + err.message);
+    }
+  };
+  reader.readAsText(f);
+}
+function clearAll() {
+  if (!confirm('Видалити ВСІ дані (ролі, кандидатів, фідбеки)?')) return;
+  if (!confirm('Точно? Цю дію неможливо скасувати (тільки через імпорт бекапу).')) return;
+  state = { roles: [JSON.parse(JSON.stringify(DEFAULT_ROLE)), JSON.parse(JSON.stringify(DEFAULT_ROLE_DEVOPS))], candidates: [], feedbacks: [] };
+  saveState();
+  navigate('feedback');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.querySelectorAll('nav button').forEach(b => {
+  b.addEventListener('click', () => navigate(b.dataset.view));
+});
+render();
+</script>
+</body>
+</html>
