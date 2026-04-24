@@ -737,6 +737,9 @@ function viewFeedback() {
     <div class="info">
       <b>Інструкція:</b> Заповнюй форму <b>відразу після інтерв'ю, до обговорення з колегами</b> — це зменшує group-think. Коментарі до оцінок обов'язкові: потрібні факти / цитати з інтерв'ю, а не враження.
     </div>
+    <div class="info" style="background:#E8F5E9;border-left-color:var(--green)">
+      <b>📤 Як повернути фідбек мені:</b> відразу після кожного інтерв'ю — (1) заповни форму і натисни <b>«Зберегти фідбек»</b>, (2) перейди на вкладку <b>«💾 Дані»</b>, натисни <b>«⬇️ JSON (повний бекап)»</b>, (3) надішли отриманий файл мені <b>у Teams</b> (Tatyana Kochereva). Це треба робити <b>після кожного інтерв'ю</b>, не накопичуй.
+    </div>
     <form id="feedback-form" onsubmit="return false">
       <h3>1. Метадані інтерв'ю</h3>
       <div class="section">
@@ -1261,6 +1264,9 @@ function viewData() {
     </div>
     <div class="section">
       <h3>Експорт</h3>
+      <div class="info" style="background:#E8F5E9;border-left-color:var(--green);margin-bottom:12px">
+        <b>📤 Як передати фідбек:</b> натисни <b>«⬇️ JSON (повний бекап)»</b> — файл завантажиться в <i>Downloads</i>. Перетягни його у <b>Teams</b>-чат з Тетяною Кочеревою (Tatyana Kochereva). Робити це потрібно <b>після кожного інтерв'ю</b>, поки спогади свіжі.
+      </div>
       <div class="actions">
         <button class="btn" onclick="exportJSON()">⬇️ JSON (повний бекап)</button>
         <button class="btn" onclick="exportAllCSV()">⬇️ Усі фідбеки (CSV)</button>
@@ -1453,7 +1459,7 @@ function submitFeedback() {
   };
   state.feedbacks.push(fb);
   saveState();
-  alert('Фідбек збережено ✅');
+  alert('Фідбек збережено ✅\n\n📤 Наступний крок: відкрий вкладку «💾 Дані» → «⬇️ JSON (повний бекап)» → надішли файл Тетяні в Teams.\nРоби це після КОЖНОГО інтерв\'ю, не накопичуй.');
   navigate('candidate', { id: candidateId });
 }
 
