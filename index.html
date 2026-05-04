@@ -98,9 +98,12 @@ h4 { font-size: 14px; margin: 14px 0 8px; font-weight: 600; }
 }
 .rating-group label:hover { background: var(--light-gray); }
 .rating-group input[type="radio"] { display: none; }
-.rating-group label.selected.below { background: #FFEBEE; border-color: var(--red); color: var(--red); font-weight: 600; }
-.rating-group label.selected.meets { background: #E8F5E9; border-color: var(--green); color: var(--green-dark); font-weight: 600; }
-.rating-group label.selected.exceeds { background: #E3F2FD; border-color: #1976D2; color: #1565C0; font-weight: 600; }
+.rating-group label.selected.rate-1 { background: #FEE2E2; border-color: #B91C1C; color: #B91C1C; font-weight: 600; }
+.rating-group label.selected.rate-2 { background: #FFEDD5; border-color: #EA580C; color: #9A3412; font-weight: 600; }
+.rating-group label.selected.rate-3 { background: #F1F5F9; border-color: #475569; color: #334155; font-weight: 600; }
+.rating-group label.selected.rate-4 { background: #DCFCE7; border-color: #65A30D; color: #3F6212; font-weight: 600; }
+.rating-group label.selected.rate-5 { background: #BBF7D0; border-color: #15803D; color: #166534; font-weight: 600; }
+.rating-group label.selected.rate-na { background: #F1F5F9; border-color: #94A3B8; color: #64748B; font-style: italic; font-weight: 600; }
 .rating-group label.selected.strong-no { background: #FFCDD2; border-color: var(--red); color: var(--red); font-weight: 600; }
 .rating-group label.selected.no { background: #FFE0B2; border-color: #F57C00; color: #E65100; font-weight: 600; }
 .rating-group label.selected.yes { background: #C8E6C9; border-color: var(--green); color: var(--green-dark); font-weight: 600; }
@@ -211,9 +214,12 @@ th { background: var(--light-gray); font-weight: 600; font-size: 12px; text-tran
 .tag.yes { background: #C8E6C9; color: var(--green-dark); }
 .tag.no { background: #FFE0B2; color: #E65100; }
 .tag.strong-no { background: #FFCDD2; color: var(--red); }
-.tag.below { background: #FFEBEE; color: var(--red); }
-.tag.meets { background: #E8F5E9; color: var(--green-dark); }
-.tag.exceeds { background: #E3F2FD; color: #1565C0; }
+.tag.rate-1 { background: #FEE2E2; color: #B91C1C; }
+.tag.rate-2 { background: #FFEDD5; color: #9A3412; }
+.tag.rate-3 { background: #F1F5F9; color: #334155; }
+.tag.rate-4 { background: #DCFCE7; color: #3F6212; }
+.tag.rate-5 { background: #BBF7D0; color: #166534; }
+.tag.rate-na { background: #F1F5F9; color: #64748B; font-style: italic; }
 .tag.low { background: #FFEBEE; color: var(--red); }
 .tag.medium { background: #FFF8E1; color: #E65100; }
 .tag.high { background: #E8F5E9; color: var(--green-dark); }
@@ -657,26 +663,65 @@ const ROLE_PROFILE_NOTE = {
 // ============================================================
 // STATE
 // ============================================================
-const STORAGE_KEY = 'lalafo-interview-feedback-v1';
+const STORAGE_KEY = 'lalafo-interview-feedback-v2';
+const STORAGE_KEY_V1 = 'lalafo-interview-feedback-v1';
+const STORAGE_KEY_V1_BACKUP = 'lalafo-interview-feedback-v1-backup';
 let state = loadState();
 let currentView = 'feedback';
 let currentParams = {};
 
+function _hydrateDefaults(data, DEFAULTS) {
+  if (!data.roles || data.roles.length === 0) data.roles = DEFAULTS.map(r => JSON.parse(JSON.stringify(r)));
+  if (!data.candidates) data.candidates = [];
+  if (!data.feedbacks) data.feedbacks = [];
+  // Seed any missing default role without overwriting user edits
+  DEFAULTS.forEach(def => {
+    if (!data.roles.find(r => r.id === def.id)) {
+      data.roles.push(JSON.parse(JSON.stringify(def)));
+    }
+  });
+  return data;
+}
+
+function _migrateV1toV2(data) {
+  // Map legacy 3-point levels to 5-point ratings: below→2, meets→3, exceeds→4.
+  // 1 and 5 (extreme ratings) are not produced by migration — they remain available for new ratings only.
+  // Comments preserved as-is.
+  const LEVEL_MAP = { below: 2, meets: 3, exceeds: 4 };
+  if (data && data.feedbacks) {
+    data.feedbacks.forEach(f => {
+      if (!f.scores) return;
+      Object.keys(f.scores).forEach(k => {
+        const s = f.scores[k];
+        if (s && typeof s === 'object' && 'level' in s) {
+          const mapped = LEVEL_MAP[s.level];
+          f.scores[k] = {
+            rating: mapped !== undefined ? mapped : null,
+            comment: s.comment || ''
+          };
+        }
+      });
+    });
+  }
+  return data;
+}
+
 function loadState() {
   const DEFAULTS = [DEFAULT_ROLE, DEFAULT_ROLE_DEVOPS];
   try {
+    // 1) Try v2
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
-      const data = JSON.parse(raw);
-      if (!data.roles || data.roles.length === 0) data.roles = DEFAULTS.map(r => JSON.parse(JSON.stringify(r)));
-      if (!data.candidates) data.candidates = [];
-      if (!data.feedbacks) data.feedbacks = [];
-      // Seed any missing default role without overwriting user edits
-      DEFAULTS.forEach(def => {
-        if (!data.roles.find(r => r.id === def.id)) {
-          data.roles.push(JSON.parse(JSON.stringify(def)));
-        }
-      });
+      return _hydrateDefaults(JSON.parse(raw), DEFAULTS);
+    }
+    // 2) Migrate from v1 if present
+    const rawV1 = localStorage.getItem(STORAGE_KEY_V1);
+    if (rawV1) {
+      const data = _hydrateDefaults(_migrateV1toV2(JSON.parse(rawV1)), DEFAULTS);
+      try { localStorage.setItem(STORAGE_KEY_V1_BACKUP, rawV1); } catch (e) { console.warn('v1 backup failed', e); }
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { console.warn('v2 write failed', e); }
+      try { localStorage.removeItem(STORAGE_KEY_V1); } catch (e) {}
+      console.info('Migrated data v1 → v2 (below→2 / meets→3 / exceeds→4; comments preserved; v1 backup saved)');
       return data;
     }
   } catch (e) { console.warn('loadState error', e); }
@@ -831,7 +876,12 @@ function viewFeedback() {
 function renderRoleSections(roleId) {
   const role = state.roles.find(r => r.id === roleId);
   if (!role) return '';
-  let html = '';
+  let html = `
+    <div class="info">
+      <b>Шкала оцінювання:</b>
+      1 — значно нижче, 2 — нижче, 3 — відповідає очікуванням, 4 — вище, 5 — значно вище, N/A — не оцінював.
+      Якщо критерій не зачіпали на інтервʼю — обирай N/A.
+    </div>`;
   let idx = 2;
   role.sections.forEach(section => {
     html += `<h3>${idx++}. ${escapeHtml(section.name)}</h3><div class="section">`;
@@ -839,9 +889,9 @@ function renderRoleSections(roleId) {
       const cid = `${section.id}__${c.id}`;
       const rubric = section.useRubric && c.rubric ? `
         <div class="rubric">
-          <div class="rubric-item"><b>Нижче:</b> ${escapeHtml(c.rubric.below || '')}</div>
-          <div class="rubric-item"><b>Відповідає:</b> ${escapeHtml(c.rubric.meets || '')}</div>
-          <div class="rubric-item"><b>Перевищує:</b> ${escapeHtml(c.rubric.exceeds || '')}</div>
+          <div class="rubric-item"><b>Нижче очікувань:</b> ${escapeHtml(c.rubric.below || '')}</div>
+          <div class="rubric-item"><b>Відповідає очікуванням:</b> ${escapeHtml(c.rubric.meets || '')}</div>
+          <div class="rubric-item"><b>Перевищує очікування:</b> ${escapeHtml(c.rubric.exceeds || '')}</div>
         </div>` : '';
       html += `
         <div class="criterion">
@@ -849,11 +899,14 @@ function renderRoleSections(roleId) {
           <div class="criterion-desc">${escapeHtml(c.desc || '')}</div>
           ${rubric}
           <div class="rating-group" data-name="score__${cid}">
-            <label data-val="below"><input type="radio" name="score__${cid}" value="below" required><span>Нижче</span></label>
-            <label data-val="meets"><input type="radio" name="score__${cid}" value="meets"><span>Відповідає</span></label>
-            <label data-val="exceeds"><input type="radio" name="score__${cid}" value="exceeds"><span>Перевищує</span></label>
+            <label data-val="1"><input type="radio" name="score__${cid}" value="1" required><span>1</span></label>
+            <label data-val="2"><input type="radio" name="score__${cid}" value="2"><span>2</span></label>
+            <label data-val="3"><input type="radio" name="score__${cid}" value="3"><span>3</span></label>
+            <label data-val="4"><input type="radio" name="score__${cid}" value="4"><span>4</span></label>
+            <label data-val="5"><input type="radio" name="score__${cid}" value="5"><span>5</span></label>
+            <label data-val="na"><input type="radio" name="score__${cid}" value="na"><span>N/A</span></label>
           </div>
-          <textarea name="comment__${cid}" required placeholder="Обґрунтування (обов'язково): конкретні факти / цитати з інтерв'ю. Що саме сказав кандидат, що зробив, які приклади навів."></textarea>
+          <textarea name="comment__${cid}" placeholder="Обґрунтування: конкретні факти / цитати з інтервʼю. Що саме сказав кандидат, що зробив, які приклади навів. Якщо N/A — поясни чому не оцінював."></textarea>
         </div>
       `;
     });
@@ -946,9 +999,14 @@ function viewCandidate() {
         ${avgRec ? `<span class="tag ${avgRec}" style="font-size:13px;padding:5px 12px">Агрегована: ${recText(avgRec)}</span>` : ''}
       </div>`;
   fbs.forEach(f => {
+    const comp = ratingCompleteness(role, f.scores);
+    const compTag = comp.total > 0
+      ? `<span class="tag neutral" title="Скільки критеріїв оцінено (не N/A)">Оцінено: ${comp.rated}/${comp.total}</span>`
+      : '';
     html += `<div style="margin-bottom:8px">
       <span class="tag ${f.recommendation}">${recText(f.recommendation)}</span>
       <span class="tag neutral">Впевн: ${confText(f.confidence)}</span>
+      ${compTag}
       <b>${escapeHtml(f.interviewer)}</b> <span class="dim small">(${escapeHtml(f.interviewerRole || '')} · ${escapeHtml(f.date)})</span>
     </div>`;
   });
@@ -964,14 +1022,21 @@ function viewCandidate() {
       html += '<th>Середнє</th></tr></thead><tbody>';
       section.criteria.forEach(crit => {
         const cid = `${section.id}__${crit.id}`;
-        const vals = fbs.map(f => f.scores && f.scores[cid] && f.scores[cid].level).filter(Boolean);
+        const vals = fbs.map(f => f.scores && f.scores[cid] && f.scores[cid].rating)
+          .filter(v => Number.isFinite(v));
         const avg = aggregateScores(vals);
         html += `<tr><td>${escapeHtml(crit.name)}</td>`;
         fbs.forEach(f => {
           const s = f.scores && f.scores[cid];
-          html += `<td>${s ? `<span class="tag ${s.level}">${scoreText(s.level)}</span>` : '—'}</td>`;
+          if (!s) {
+            html += '<td>—</td>';
+          } else if (s.rating === null || s.rating === undefined) {
+            html += `<td><span class="tag rate-na">N/A</span></td>`;
+          } else {
+            html += `<td><span class="tag ${ratingClass(s.rating)}">${scoreText(s.rating)}</span></td>`;
+          }
         });
-        html += `<td>${avg ? `<span class="tag ${avg}">${scoreText(avg)}</span>` : '—'}</td></tr>`;
+        html += `<td>${avg !== null ? `<span class="tag ${ratingClass(avg)}">${scoreText(avg)}</span>` : '—'}</td></tr>`;
       });
       html += '</tbody></table></div></div>';
     });
@@ -1005,8 +1070,12 @@ function viewCandidate() {
         if (scores.length) {
           html += `<h4>${escapeHtml(section.name)}</h4>`;
           scores.forEach(({crit, s}) => {
+            const isNA = s.rating === null || s.rating === undefined;
+            const tag = isNA
+              ? `<span class="tag rate-na">N/A</span>`
+              : `<span class="tag ${ratingClass(s.rating)}">${scoreText(s.rating)}</span>`;
             html += `<div style="margin-bottom:10px;padding-left:8px;border-left:3px solid var(--border)">
-              <div><b>${escapeHtml(crit.name)}</b> <span class="tag ${s.level}">${scoreText(s.level)}</span></div>
+              <div><b>${escapeHtml(crit.name)}</b> ${tag}</div>
               <div class="dim small" style="margin-top:3px">${escapeHtml(s.comment || '')}</div>
             </div>`;
           });
@@ -1059,11 +1128,23 @@ function viewCompare() {
     role.sections.forEach(section => {
       section.criteria.forEach(crit => {
         const cid = `${section.id}__${crit.id}`;
-        const vals = fbs.map(f => f.scores && f.scores[cid] && f.scores[cid].level).filter(Boolean);
+        const vals = fbs.map(f => f.scores && f.scores[cid] && f.scores[cid].rating)
+          .filter(v => Number.isFinite(v));
         avgScores[cid] = aggregateScores(vals);
       });
     });
-    return { c, fbs, avgScores, avgRec: aggregateRecs(fbs.map(f => f.recommendation)) };
+    // Per-candidate completeness: averaged across feedbacks (rated criteria / total criteria).
+    let totalRated = 0, totalSlots = 0;
+    fbs.forEach(f => {
+      const comp = ratingCompleteness(role, f.scores);
+      totalRated += comp.rated;
+      totalSlots += comp.total;
+    });
+    return {
+      c, fbs, avgScores,
+      avgRec: aggregateRecs(fbs.map(f => f.recommendation)),
+      totalRated, totalSlots
+    };
   });
 
   html += '<div class="scroll-x"><table>';
@@ -1075,6 +1156,17 @@ function viewCompare() {
     html += `<td>${avgRec ? `<span class="tag ${avgRec}">${recText(avgRec)}</span>` : '—'}<br><span class="dim small">${fbs.length} фідбек(и)</span></td>`;
   });
   html += '</tr>';
+  // Completeness row: how many criteria were actually rated (not N/A) across all feedbacks.
+  html += '<tr><td><b>Повнота оцінки</b><br><span class="dim small">оцінено критеріїв / можливо</span></td>';
+  candData.forEach(({totalRated, totalSlots}) => {
+    if (totalSlots === 0) {
+      html += '<td><span class="dim small">—</span></td>';
+    } else {
+      const pct = Math.round((totalRated / totalSlots) * 100);
+      html += `<td><span class="tag neutral">${totalRated}/${totalSlots}</span><br><span class="dim small">${pct}%</span></td>`;
+    }
+  });
+  html += '</tr>';
   role.sections.forEach(section => {
     html += `<tr><td colspan="${candData.length + 1}" style="background:var(--green-light);font-weight:600;color:var(--green-dark)">${escapeHtml(section.name)}</td></tr>`;
     section.criteria.forEach(crit => {
@@ -1082,7 +1174,7 @@ function viewCompare() {
       html += `<tr><td>${escapeHtml(crit.name)}</td>`;
       candData.forEach(({avgScores}) => {
         const s = avgScores[cid];
-        html += `<td>${s ? `<span class="tag ${s}">${scoreText(s)}</span>` : '—'}</td>`;
+        html += `<td>${s !== null && s !== undefined ? `<span class="tag ${ratingClass(s)}">${scoreText(s)}</span>` : '—'}</td>`;
       });
       html += '</tr>';
     });
@@ -1306,14 +1398,44 @@ function escapeHtml(s) {
 }
 function recText(r) { return { 'strong-no':'Strong No','no':'No','yes':'Yes','strong-yes':'Strong Yes' }[r] || r || '—'; }
 function confText(c) { return { 'low':'Low','medium':'Medium','high':'High' }[c] || c || '—'; }
-function scoreText(s) { return { 'below':'Нижче','meets':'Відповідає','exceeds':'Перевищує' }[s] || s || '—'; }
+// Render a rating value: numbers 1..5 (avg → 0.1 precision), null/undefined → 'N/A', empty → '—'.
+function scoreText(s) {
+  if (s === null) return 'N/A';
+  if (s === undefined || s === '') return '—';
+  if (typeof s === 'number') {
+    if (!isFinite(s)) return '—';
+    return Number.isInteger(s) ? String(s) : s.toFixed(1);
+  }
+  return String(s);
+}
+// CSS class for a rating tag/label. Numbers round to nearest int (1..5). null → 'rate-na'.
+function ratingClass(s) {
+  if (s === null) return 'rate-na';
+  if (s === undefined || s === '') return '';
+  const n = Math.round(Number(s));
+  if (n >= 1 && n <= 5) return 'rate-' + n;
+  return '';
+}
+// Average a list of ratings (numbers 1..5). Ignores null/N/A and non-numeric.
 function aggregateScores(vals) {
   if (!vals || vals.length === 0) return null;
-  const map = { below: 1, meets: 2, exceeds: 3 };
-  const avg = vals.reduce((a, v) => a + (map[v] || 0), 0) / vals.length;
-  if (avg < 1.67) return 'below';
-  if (avg < 2.34) return 'meets';
-  return 'exceeds';
+  const nums = vals.map(v => Number(v)).filter(v => Number.isFinite(v) && v >= 1 && v <= 5);
+  if (nums.length === 0) return null;
+  return nums.reduce((a, v) => a + v, 0) / nums.length;
+}
+// How many criteria of a role were rated (rating !== null) in a single feedback's scores object.
+function ratingCompleteness(role, scores) {
+  let rated = 0, total = 0;
+  if (!role) return { rated, total };
+  role.sections.forEach(section => {
+    section.criteria.forEach(crit => {
+      total++;
+      const cid = `${section.id}__${crit.id}`;
+      const s = scores && scores[cid];
+      if (s && s.rating !== null && s.rating !== undefined) rated++;
+    });
+  });
+  return { rated, total };
 }
 function aggregateRecs(vals) {
   if (!vals || vals.length === 0) return null;
@@ -1386,10 +1508,14 @@ function attachRatingHandlers() {
       if (!input) return;
       input.addEventListener('change', () => {
         group.querySelectorAll('label').forEach(l => {
-          l.classList.remove('selected', 'below', 'meets', 'exceeds',
+          l.classList.remove('selected',
+            'rate-1', 'rate-2', 'rate-3', 'rate-4', 'rate-5', 'rate-na',
             'strong-no', 'no', 'yes', 'strong-yes', 'low', 'medium', 'high');
         });
-        lbl.classList.add('selected', lbl.dataset.val);
+        // 1..5 / 'na' → CSS-friendly class names (rate-1, rate-na, …)
+        const dv = lbl.dataset.val;
+        const modifier = (/^[1-5]$/.test(dv) || dv === 'na') ? 'rate-' + dv : dv;
+        lbl.classList.add('selected', modifier);
       });
     });
   });
@@ -1426,11 +1552,15 @@ function submitFeedback() {
   role.sections.forEach(section => {
     section.criteria.forEach(crit => {
       const cid = `${section.id}__${crit.id}`;
-      const level = fd.get(`score__${cid}`);
+      const ratingRaw = fd.get(`score__${cid}`);
       const comment = (fd.get(`comment__${cid}`) || '').trim();
-      if (level) {
-        scores[cid] = { level, comment };
-        if (!comment) missingComments.push(crit.name);
+      let rating;
+      if (ratingRaw === 'na') rating = null;
+      else if (ratingRaw) rating = parseInt(ratingRaw, 10);
+      if (rating !== undefined) {
+        scores[cid] = { rating, comment };
+        // Comments are now optional; warn only when a numeric rating is given without justification
+        if (rating !== null && !comment) missingComments.push(crit.name);
       }
     });
   });
@@ -1570,10 +1700,11 @@ function exportAllCSV() {
           const cid = `${section.id}__${crit.id}`;
           const s = f.scores && f.scores[cid];
           if (s) {
+            const ratingCell = (s.rating === null || s.rating === undefined) ? 'N/A' : scoreText(s.rating);
             rows.push([
               candName, roleName, f.date, f.interviewer, f.interviewerRole || '',
               recText(f.recommendation), confText(f.confidence),
-              section.name, crit.name, scoreText(s.level), s.comment || '',
+              section.name, crit.name, ratingCell, s.comment || '',
               (f.redFlags || []).join(' | '), f.summary || ''
             ]);
           }
@@ -1600,8 +1731,10 @@ function exportCompareCSV(roleId) {
       const cid = `${section.id}__${crit.id}`;
       rows.push([crit.name, ...candidates.map(c => {
         const fbs = state.feedbacks.filter(f => f.candidateId === c.id);
-        const vals = fbs.map(f => f.scores && f.scores[cid] && f.scores[cid].level).filter(Boolean);
-        return scoreText(aggregateScores(vals));
+        const vals = fbs.map(f => f.scores && f.scores[cid] && f.scores[cid].rating)
+          .filter(v => Number.isFinite(v));
+        const avg = aggregateScores(vals);
+        return avg === null ? '' : scoreText(avg);
       })]);
     });
   });
@@ -1618,6 +1751,8 @@ function importJSON(mode) {
     try {
       const data = JSON.parse(e.target.result);
       if (!data.roles || !data.candidates || !data.feedbacks) throw new Error('структура файлу некоректна');
+      // If imported file is in old v1 shape (scores have `level`), migrate in place. Idempotent for v2.
+      _migrateV1toV2(data);
       if (mode === 'replace') {
         if (!confirm('Замінити ВСІ поточні дані імпортованими?')) return;
         state = data;
