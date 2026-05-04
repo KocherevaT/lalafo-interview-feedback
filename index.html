@@ -889,9 +889,9 @@ function renderRoleSections(roleId) {
       const cid = `${section.id}__${c.id}`;
       const rubric = section.useRubric && c.rubric ? `
         <div class="rubric">
-          <div class="rubric-item"><b>Нижче очікувань:</b> ${escapeHtml(c.rubric.below || '')}</div>
-          <div class="rubric-item"><b>Відповідає очікуванням:</b> ${escapeHtml(c.rubric.meets || '')}</div>
-          <div class="rubric-item"><b>Перевищує очікування:</b> ${escapeHtml(c.rubric.exceeds || '')}</div>
+          <div class="rubric-item"><b>1–2 — Нижче очікувань:</b> ${escapeHtml(c.rubric.below || '')}</div>
+          <div class="rubric-item"><b>3 — Відповідає очікуванням:</b> ${escapeHtml(c.rubric.meets || '')}</div>
+          <div class="rubric-item"><b>4–5 — Перевищує очікування:</b> ${escapeHtml(c.rubric.exceeds || '')}</div>
         </div>` : '';
       html += `
         <div class="criterion">
@@ -1306,9 +1306,9 @@ function renderRoleEditor() {
         </div>`;
       if (section.useRubric) {
         html += `
-          <div class="field"><label>Нижче очікувань</label><textarea oninput="setRubric(${sIdx},${cIdx},'below',this.value)">${escapeHtml((c.rubric && c.rubric.below) || '')}</textarea></div>
-          <div class="field"><label>Відповідає очікуванням</label><textarea oninput="setRubric(${sIdx},${cIdx},'meets',this.value)">${escapeHtml((c.rubric && c.rubric.meets) || '')}</textarea></div>
-          <div class="field"><label>Перевищує очікування</label><textarea oninput="setRubric(${sIdx},${cIdx},'exceeds',this.value)">${escapeHtml((c.rubric && c.rubric.exceeds) || '')}</textarea></div>`;
+          <div class="field"><label>1–2 — Нижче очікувань</label><textarea oninput="setRubric(${sIdx},${cIdx},'below',this.value)">${escapeHtml((c.rubric && c.rubric.below) || '')}</textarea></div>
+          <div class="field"><label>3 — Відповідає очікуванням</label><textarea oninput="setRubric(${sIdx},${cIdx},'meets',this.value)">${escapeHtml((c.rubric && c.rubric.meets) || '')}</textarea></div>
+          <div class="field"><label>4–5 — Перевищує очікування</label><textarea oninput="setRubric(${sIdx},${cIdx},'exceeds',this.value)">${escapeHtml((c.rubric && c.rubric.exceeds) || '')}</textarea></div>`;
       }
       html += `<button type="button" class="btn small danger" onclick="removeCriterion(${sIdx},${cIdx})">🗑 Видалити критерій</button></div>`;
     });
