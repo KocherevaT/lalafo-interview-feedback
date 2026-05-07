@@ -462,8 +462,8 @@ const DEFAULT_ROLE_DEVOPS = {
   id: 'devops-ai-ready',
   name: 'DevOps Engineer (AI-Ready Infrastructure)',
   level: 'Senior',
-  description: 'Власник інфраструктури Lalafo: Kubernetes, бази даних, CI/CD, моніторинг на Hetzner + AWS. Одночасно driver AI-adoption у DevOps: LiteLLM-gateway, LLM на K8s, AI в workflows (code review, incident management, автоматизація рутини).',
-  languages: 'Англійська Upper-Intermediate+, Українська — носій',
+  description: 'Owner of Lalafo infrastructure: Kubernetes, databases, CI/CD, monitoring on Hetzner + AWS. Also driver of AI adoption in DevOps: LiteLLM gateway, LLMs on K8s, AI in workflows (code review, incident management, routine automation).',
+  languages: 'English Upper-Intermediate+, Ukrainian native',
   sections: [
     {
       id: 'hard',
@@ -473,31 +473,31 @@ const DEFAULT_ROLE_DEVOPS = {
         {
           id: 'kubernetes',
           name: 'Kubernetes production ownership — MUST HAVE',
-          desc: 'Helm, RBAC, network policies, HPA/VPA, cluster upgrades, troubleshooting складних проблем у проді.',
+          desc: 'Helm, RBAC, network policies, HPA/VPA, cluster upgrades, troubleshooting complex production issues.',
           rubric: {
-            below: '🚩 Тільки managed-кластери або learning projects. Не робив upgrades, не дебажив production issues.',
-            meets: 'Адмініструє продакшн K8s. Впевнено з Helm, RBAC, NetworkPolicies, HPA/VPA. Робив cluster upgrades.',
-            exceeds: 'Будував K8s з нуля або мігрував. Fine-tune HPA/VPA під реальне навантаження. Troubleshooting складних network/scheduling issues.'
+            below: '🚩 Only managed clusters or learning projects. Has not done upgrades, has not debugged production issues.',
+            meets: 'Administers production K8s. Confident with Helm, RBAC, NetworkPolicies, HPA/VPA. Has done cluster upgrades.',
+            exceeds: 'Built K8s from scratch or migrated. Fine-tunes HPA/VPA for real workloads. Troubleshoots complex network/scheduling issues.'
           }
         },
         {
           id: 'databases',
-          name: 'Бази даних: PostgreSQL, MongoDB, Redis, ClickHouse',
-          desc: 'Replication, backups, performance monitoring, migrations. Production tuning, а не developer-level.',
+          name: 'Databases: PostgreSQL, MongoDB, Redis, ClickHouse',
+          desc: 'Replication, backups, performance monitoring, migrations. Production tuning, not developer-level.',
           rubric: {
-            below: 'Developer-рівень: вміє писати запити, але не адмініструв replication/backup/performance.',
-            meets: 'Адмініструв щонайменше 2–3 з них у проді: replication, backup, monitoring, базовий tuning.',
-            exceeds: 'Troubleshooting складних performance-проблем. Досвід міграцій, disaster recovery. Розуміє внутрішню механіку (MVCC, storage engines).'
+            below: 'Developer-level: can write queries but has not administered replication/backup/performance.',
+            meets: 'Has administered at least 2–3 of them in production: replication, backup, monitoring, basic tuning.',
+            exceeds: 'Troubleshoots complex performance issues. Experience with migrations, disaster recovery. Understands internals (MVCC, storage engines).'
           }
         },
         {
           id: 'cicd-gitops',
           name: 'CI/CD + GitOps (GitLab CI)',
-          desc: 'Advanced pipelines, environments, security scanning, GitOps-практики (ArgoCD / Flux).',
+          desc: 'Advanced pipelines, environments, security scanning, GitOps practices (ArgoCD / Flux).',
           rubric: {
-            below: 'Писав базові .gitlab-ci.yml. GitOps не використовував.',
-            meets: 'Складні GitLab pipelines, multi-env деплой, security scanning. Впроваджував GitOps.',
-            exceeds: 'Дизайнив CI/CD для команди / платформи. GitOps як основний деплой-патерн. Оптимізував час пайплайнів у разі.'
+            below: 'Wrote basic .gitlab-ci.yml. Has not used GitOps.',
+            meets: 'Complex GitLab pipelines, multi-env deployments, security scanning. Has implemented GitOps.',
+            exceeds: 'Designed CI/CD for a team / platform. GitOps as the primary deployment pattern. Cut pipeline time by a multiple.'
           }
         },
         {
@@ -505,136 +505,136 @@ const DEFAULT_ROLE_DEVOPS = {
           name: 'Cloud & infrastructure (Hetzner + AWS)',
           desc: 'Hetzner (bare-metal / cloud) + AWS (EC2, S3, RDS, IAM, VPC, EKS). Scalability, fault tolerance, cost control.',
           rubric: {
-            below: 'Працював лише з одним провайдером. Не робив cost optimization або fault tolerance design.',
-            meets: 'Досвід з AWS або Hetzner у проді. Розуміє VPC, IAM, security groups. Робив cost optimization.',
-            exceeds: 'Дизайнив архітектуру з нуля на Hetzner або hybrid. Конкретні кейси cost reduction. Multi-region fault tolerance.'
+            below: 'Worked with only one provider. Has not done cost optimization or fault tolerance design.',
+            meets: 'Production experience with AWS or Hetzner. Understands VPC, IAM, security groups. Has done cost optimization.',
+            exceeds: 'Designed architecture from scratch on Hetzner or hybrid. Concrete cost reduction cases. Multi-region fault tolerance.'
           }
         },
         {
           id: 'monitoring-slo',
-          name: 'Моніторинг + SLI/SLO (Grafana, Prometheus, InfluxDB)',
-          desc: 'Dashboards, alerts, визначення SLI/SLO для сервісів. Proactive monitoring.',
+          name: 'Monitoring + SLI/SLO (Grafana, Prometheus, InfluxDB)',
+          desc: 'Dashboards, alerts, defining SLI/SLO for services. Proactive monitoring.',
           rubric: {
-            below: 'Ставив дашборди за шаблоном. SLI/SLO не визначав.',
-            meets: 'Будує dashboards і alerts. Визначав SLI/SLO для окремих сервісів. PromQL впевнено.',
-            exceeds: 'Будував observability-стек для платформи. SLO-based alerting, error budgets. Впроваджував культуру SLO в команді.'
+            below: 'Set up dashboards from templates. Has not defined SLI/SLO.',
+            meets: 'Builds dashboards and alerts. Has defined SLI/SLO for individual services. Confident with PromQL.',
+            exceeds: 'Built observability stack for a platform. SLO-based alerting, error budgets. Has championed SLO culture in the team.'
           }
         },
         {
           id: 'linux',
-          name: 'Linux/Ubuntu адміністрування',
+          name: 'Linux/Ubuntu administration',
           desc: 'systemd, networking, iptables/nftables, DNS, filesystems, security hardening, performance tuning.',
           rubric: {
-            below: 'Поверхневе знання. Плутається в systemd або networking.',
-            meets: 'Впевнене адміністрування Ubuntu. Робив security hardening, network diagnostics, performance tuning.',
-            exceeds: 'Deep-level: kernel parameters, ядерні механізми, файлові системи. Troubleshooting на рівні strace/perf.'
+            below: 'Surface-level knowledge. Gets confused with systemd or networking.',
+            meets: 'Confident Ubuntu administration. Has done security hardening, network diagnostics, performance tuning.',
+            exceeds: 'Deep-level: kernel parameters, kernel internals, filesystems. Troubleshoots at strace/perf level.'
           }
         },
         {
           id: 'docker',
           name: 'Docker (production best practices)',
-          desc: 'Оптимізовані образи, multi-stage builds, security best practices.',
+          desc: 'Optimized images, multi-stage builds, security best practices.',
           rubric: {
-            below: 'Пише Dockerfile як quickstart. Не оптимізував розмір, не думав про security.',
-            meets: 'Multi-stage builds, мінімізація шарів, non-root user, scanning образів.',
+            below: 'Writes Dockerfile as a quickstart. Has not optimized size, has not considered security.',
+            meets: 'Multi-stage builds, layer minimization, non-root user, image scanning.',
             exceeds: 'Distroless / scratch images, reproducible builds, supply-chain security (SBOM, signing).'
           }
         },
         {
           id: 'scripting',
           name: 'Python + Bash (automation)',
-          desc: 'Автоматизація рутини, скриптинг для infra. Не "copy-paste зі Stack Overflow".',
+          desc: 'Routine automation, infra scripting. Not "copy-paste from Stack Overflow".',
           rubric: {
-            below: 'Тільки прості bash-скрипти. Python — базово.',
-            meets: 'Пише автоматизацію на Python + Bash. Має власні tooling-скрипти для щоденних задач.',
-            exceeds: 'Будував внутрішні tools / CLI для команди. Складна автоматизація з обробкою помилок, логуванням, тестами.'
+            below: 'Only simple bash scripts. Python at basic level.',
+            meets: 'Writes automation in Python + Bash. Has own tooling scripts for daily tasks.',
+            exceeds: 'Built internal tools / CLI for the team. Complex automation with error handling, logging, tests.'
           }
         },
         {
           id: 'language-en',
           name: 'English Upper-Intermediate+',
-          desc: 'Читання логів, технічної документації, написання документації, комунікація з англомовними колегами.',
+          desc: 'Reading logs and technical documentation, writing documentation, communication with English-speaking colleagues.',
           rubric: {
-            below: 'Нижче B2. Труднощі зі складною документацією або написанням пост-мортемів.',
-            meets: 'B2+: впевнено читає і пише технічні тексти, комунікує з колегами.',
-            exceeds: 'C1: вільно веде технічні дискусії, пише якісну документацію і пост-мортеми.'
+            below: 'Below B2. Struggles with complex documentation or writing post-mortems.',
+            meets: 'B2+: confidently reads and writes technical texts, communicates with colleagues.',
+            exceeds: 'C1: fluent in technical discussions, writes high-quality documentation and post-mortems.'
           }
         }
       ]
     },
     {
       id: 'ai-infra',
-      name: 'AI Adoption & AI Infrastructure — ядро ролі',
+      name: 'AI Adoption & AI Infrastructure — core of the role',
       useRubric: true,
       criteria: [
         {
           id: 'litellm-gateway',
-          name: 'LiteLLM / AI Gateway — MUST HAVE (або сильний fast-learner)',
-          desc: 'Розгортання і адміністрування AI Gateway для уніфікованого доступу до LLM-провайдерів (OpenAI, Anthropic, Vertex AI, Bedrock).',
+          name: 'LiteLLM / AI Gateway — MUST HAVE (or strong fast-learner)',
+          desc: 'Deploying and administering an AI Gateway for unified access to LLM providers (OpenAI, Anthropic, Vertex AI, Bedrock).',
           rubric: {
-            below: '🚩 Не працював з AI Gateway. Не розуміє абстракцію над LLM API. Слабка мотивація вчитись.',
-            meets: 'Розгортав LiteLLM або аналог. Налаштовував routing, rate limiting, logging. Або: сильна мотивація + схожий досвід з API gateways.',
-            exceeds: 'Production LiteLLM з fallback-стратегіями, cost tracking, multi-provider routing. Може дизайнити такий gateway з нуля.'
+            below: '🚩 Has not worked with an AI Gateway. Does not understand the abstraction over LLM APIs. Weak motivation to learn.',
+            meets: 'Has deployed LiteLLM or equivalent. Configured routing, rate limiting, logging. Or: strong motivation + similar experience with API gateways.',
+            exceeds: 'Production LiteLLM with fallback strategies, cost tracking, multi-provider routing. Can design such a gateway from scratch.'
           }
         },
         {
           id: 'llm-on-k8s',
-          name: 'LLM/ML інфра на Kubernetes',
-          desc: 'GPU scheduling, model serving (vLLM / TGI / Triton), оптимізація latency/throughput.',
+          name: 'LLM/ML infrastructure on Kubernetes',
+          desc: 'GPU scheduling, model serving (vLLM / TGI / Triton), latency/throughput optimization.',
           rubric: {
-            below: 'Не працював з GPU на K8s. Не розуміє model serving.',
-            meets: 'Деплоїв моделі на K8s з GPU. Знає хоча б один model server (vLLM / TGI / Triton).',
-            exceeds: 'Production LLM serving на K8s. Tuning GPU scheduling, autoscaling під ML-навантаження, inference optimization.'
+            below: 'Has not worked with GPU on K8s. Does not understand model serving.',
+            meets: 'Has deployed models on K8s with GPU. Knows at least one model server (vLLM / TGI / Triton).',
+            exceeds: 'Production LLM serving on K8s. Tuning GPU scheduling, autoscaling for ML workloads, inference optimization.'
           }
         },
         {
           id: 'ai-in-workflows',
-          name: 'AI у DevOps workflows (hands-on практика)',
-          desc: 'AI code review, AI-assisted incident management, автоматизація рутини. Не "чув про" — щоденна практика.',
+          name: 'AI in DevOps workflows (hands-on practice)',
+          desc: 'AI code review, AI-assisted incident management, routine automation. Not "heard of" — daily practice.',
           rubric: {
-            below: '🚩 "Пробував ChatGPT". Немає кейсів інтеграції AI у DevOps-процеси.',
-            meets: 'Використовує AI щодня: генерація IaC, дебагінг, пост-мортеми. Має власні промпти / CLI-тулінги.',
-            exceeds: 'Впровадив AI-workflow для команди: AI-assisted on-call, auto-remediation, AI code review. Вимірний impact.'
+            below: '🚩 "Tried ChatGPT". No cases of integrating AI into DevOps processes.',
+            meets: 'Uses AI daily: IaC generation, debugging, post-mortems. Has own prompts / CLI tooling.',
+            exceeds: 'Has implemented AI workflows for the team: AI-assisted on-call, auto-remediation, AI code review. Measurable impact.'
           }
         },
         {
           id: 'ai-cost-monitoring',
-          name: 'Cost/performance моніторинг AI-сервісів',
+          name: 'Cost/performance monitoring of AI services',
           desc: 'Token usage tracking, latency optimization, cost allocation per team/feature.',
           rubric: {
-            below: 'Не розуміє cost-модель LLM API. Не моніторив token usage.',
-            meets: 'Моніторив costs і latency для LLM. Робив базову оптимізацію токенів.',
-            exceeds: 'Будував cost-dashboards з allocation по командах/фічах. Оптимізував prompts і routing для скорочення costs на X%.'
+            below: 'Does not understand LLM API cost model. Has not monitored token usage.',
+            meets: 'Has monitored costs and latency for LLMs. Has done basic token optimization.',
+            exceeds: 'Built cost dashboards with allocation per team/feature. Optimized prompts and routing to reduce costs by X%.'
           }
         }
       ]
     },
     {
       id: 'soft',
-      name: 'Soft skills / мотивація',
+      name: 'Soft skills / motivation',
       useRubric: false,
       criteria: [
-        { id: 'proactive', name: 'Proactive mindset', desc: 'Ідентифікує проблеми до того, як вони стали інцидентами. Preventive measures, capacity planning.' },
-        { id: 'mentoring', name: 'Mentoring junior/middle', desc: 'Реальний досвід менторингу: code/infra reviews, навчання troubleshooting, передача знань.' },
-        { id: 'incident-mgmt', name: 'Incident management + post-mortems', desc: 'Веде інциденти спокійно. Пише структуровані blameless post-mortem. Імплементує preventive actions.' },
-        { id: 'documentation', name: 'Документація (JIRA / Confluence)', desc: 'Пише runbooks, архітектурні документи, пост-мортеми. Не лишає знання в голові.' },
-        { id: 'oncall', name: 'On-call готовність', desc: 'Комфортно в on-call ротаціях. Не вигоряє, тримає якість відповідей, дотримується escalation-процесу.' },
-        { id: 'communication', name: 'Комунікація', desc: 'Пояснює складне простою мовою. Коректний blameless-тон у кризах. Слухає колег.' }
+        { id: 'proactive', name: 'Proactive mindset', desc: 'Identifies problems before they become incidents. Preventive measures, capacity planning.' },
+        { id: 'mentoring', name: 'Mentoring junior/middle', desc: 'Real mentoring experience: code/infra reviews, teaching troubleshooting, knowledge transfer.' },
+        { id: 'incident-mgmt', name: 'Incident management + post-mortems', desc: 'Handles incidents calmly. Writes structured blameless post-mortems. Implements preventive actions.' },
+        { id: 'documentation', name: 'Documentation (JIRA / Confluence)', desc: 'Writes runbooks, architecture documents, post-mortems. Does not keep knowledge in their head.' },
+        { id: 'oncall', name: 'On-call readiness', desc: 'Comfortable in on-call rotations. Does not burn out, maintains response quality, follows the escalation process.' },
+        { id: 'communication', name: 'Communication', desc: 'Explains complex things in simple language. Correct blameless tone in crises. Listens to colleagues.' }
       ]
     },
     {
       id: 'nice-to-have',
-      name: 'Nice to have (бонусні пункти)',
+      name: 'Nice to have (bonus items)',
       useRubric: false,
       criteria: [
-        { id: 'queues', name: 'Kafka / RabbitMQ (production)', desc: 'Production-досвід: партиціонування, rebalancing, monitoring, troubleshooting.' },
+        { id: 'queues', name: 'Kafka / RabbitMQ (production)', desc: 'Production experience: partitioning, rebalancing, monitoring, troubleshooting.' },
         { id: 'mlops', name: 'MLOps (vLLM, TGI, Triton, experiment tracking)', desc: 'Model serving, experiment tracking, ML pipelines.' },
-        { id: 'mcp-rag', name: 'MCP / AI agents / RAG', desc: 'Знайомий з Model Context Protocol, будував AI-агентів або RAG-архітектуру.' },
-        { id: 'mesh', name: 'Service mesh (Istio, Linkerd)', desc: 'Production-досвід: traffic management, mTLS, observability через mesh.' },
-        { id: 'vault-certs', name: 'HashiCorp Vault, cert-manager', desc: 'Secrets management, PKI, автоматична ротація сертифікатів.' },
-        { id: 'networking-deep', name: 'Networking deep (TCP/IP, HTTP/2, gRPC, TLS)', desc: 'Розуміння протоколів на рівні для debug performance/security issues.' },
+        { id: 'mcp-rag', name: 'MCP / AI agents / RAG', desc: 'Familiar with Model Context Protocol, has built AI agents or RAG architecture.' },
+        { id: 'mesh', name: 'Service mesh (Istio, Linkerd)', desc: 'Production experience: traffic management, mTLS, observability via mesh.' },
+        { id: 'vault-certs', name: 'HashiCorp Vault, cert-manager', desc: 'Secrets management, PKI, automatic certificate rotation.' },
+        { id: 'networking-deep', name: 'Networking deep (TCP/IP, HTTP/2, gRPC, TLS)', desc: 'Understanding of protocols at a level sufficient to debug performance/security issues.' },
         { id: 'gpu-infra', name: 'GPU infrastructure for ML/AI', desc: 'GPU scheduling, NCCL, multi-GPU training infra.' },
-        { id: 'cloudflare', name: 'Cloudflare (WAF, Workers, Zero Trust)', desc: 'Не лише DNS — Workers для логіки, Zero Trust для доступу, WAF-правила.' }
+        { id: 'cloudflare', name: 'Cloudflare (WAF, Workers, Zero Trust)', desc: 'Not just DNS — Workers for logic, Zero Trust for access, WAF rules.' }
       ]
     },
     {
@@ -645,32 +645,31 @@ const DEFAULT_ROLE_DEVOPS = {
     }
   ],
   questions: [
-    'Опиши Kubernetes-кластер, яким зараз керуєш: розмір, навантаження, найбільший біль.',
-    'Розкажи про найскладніший production-інцидент за останній рік — що сталось, root cause, що змінив після.',
-    'Як ти використовуєш AI у щоденній DevOps-роботі? 2–3 конкретні кейси з результатом.',
-    'Чи налаштовував LiteLLM або інший AI Gateway? Розкажи про routing / fallbacks / rate limiting / cost tracking.',
-    'GPU scheduling на K8s — твій досвід. Які виклики і як вирішував?',
-    'SLI/SLO, які ти сам визначав — як вибирав метрики, як комунікував з продуктом/інженерами?',
-    'Кейс cost optimization інфри — що оптимізував, яка економія, які trade-offs.',
-    'Як у тебе виглядає GitOps / CI/CD зараз? Що б покращив, якби починав з нуля?',
-    'Розкажи про кейс менторингу: як навчав колегу troubleshooting або архітектурному мисленню.',
-    'Що робиш щоденно, щоб бути proactive, а не reactive? Конкретні практики.'
+    'Describe the Kubernetes cluster you currently manage: size, workload, biggest pain point.',
+    'Tell me about the most challenging production incident in the past year — what happened, root cause, what you changed afterwards.',
+    'How do you use AI in your daily DevOps work? 2–3 concrete cases with results.',
+    'Have you configured LiteLLM or another AI Gateway? Tell me about routing / fallbacks / rate limiting / cost tracking.',
+    'GPU scheduling on K8s — your experience. What challenges did you face and how did you solve them?',
+    'SLI/SLO you defined yourself — how did you pick the metrics, how did you communicate with product/engineering?',
+    'Infrastructure cost optimization case — what you optimized, savings, trade-offs.',
+    'What does your GitOps / CI/CD look like now? What would you improve if starting from scratch?',
+    'Tell me about a mentoring case: how you taught a colleague troubleshooting or architectural thinking.',
+    'What do you do daily to be proactive rather than reactive? Concrete practices.'
   ],
   redFlags: [
-    'Немає production-досвіду з K8s (тільки managed або learning projects)',
-    'Не може описати реальний інцидент і post-mortem',
-    '"Пробував AI" без щоденної hands-on практики у DevOps',
-    'Не знає cost/performance trade-offs у хмарі або в LLM API',
-    'Reactive підхід: чекає, поки зламається',
-    'Немає досвіду менторингу — тільки individual contributor рівень',
-    'Не адмініструв БД у проді (replication / backup / tuning)',
-    'Не пише документацію / post-mortems (або робить це поверхово)'
+    'No production experience with K8s (only managed or learning projects)',
+    'Cannot describe a real incident and post-mortem',
+    '"Tried AI" without daily hands-on practice in DevOps',
+    'Does not know cost/performance trade-offs in the cloud or in LLM APIs',
+    'Reactive approach: waits until something breaks',
+    'No mentoring experience — only individual contributor level',
+    'Has not administered databases in production (replication / backup / tuning)',
+    'Does not write documentation / post-mortems (or does it superficially)'
   ]
 };
 
 // ============================================================
 // PRE-CONFIGURED ROLE: HR Business Partner (Kyrgyzstan)
-// Content authored in English; UI copy remains Ukrainian.
 // ============================================================
 const DEFAULT_ROLE_HRBP = {
   id: 'hrbp-kg',

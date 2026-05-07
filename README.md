@@ -1,18 +1,19 @@
-# Lalafo — Interview Feedback Tool
+# Lalafo Interview Feedback Tool
 
-Структурований інструмент фідбеку з інтерв'ю для HR та хайрінг менеджерів Lalafo.
+Structured post-interview feedback tool for Lalafo HR and hiring managers.
 
-**Відкрити форму:** https://<твій-нік>.github.io/<назва-репо>/
+**Live site:** https://kocherevat.github.io/lalafo-interview-feedback/
 
-## Як працює
+## How it works
 
-1. Відкриваєш форму за посиланням вище.
-2. Заповнюєш фідбек одразу після інтерв'ю (дані зберігаються локально у твоєму браузері).
-3. Коли потрібно аґрегувати — експортуєш JSON і надсилаєш HR.
-4. HR робить імпорт через режим «🔀 Злити» і бачить зведення по кандидатах.
+1. HR creates roles, rubrics, and candidates.
+2. HR exports an interviewer pack and sends it to the hiring manager.
+3. The hiring manager imports the pack, selects a candidate, fills in feedback, and exports JSON.
+4. HR imports returned JSON files with merge mode and reviews candidate summaries and comparisons.
 
-## Важливо
+## Important
 
-- Дані живуть у `localStorage` твого браузера. Не очищай дані сайту / не використовуй інкогніто.
-- Бекап — експорт JSON у вкладці «💾 Дані».
-- Відкривай завжди в одному браузері на одному комп'ютері.
+- Data is stored in the browser's `localStorage`.
+- Do not use incognito mode or clear site data unless you have exported a JSON backup.
+- Always use the same browser and the same GitHub Pages URL.
+- Use the Data tab to export backups and interviewer packs.
